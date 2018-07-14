@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="jode-1.1.2-pre-embedded">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/jode-1.1.2-pre-embedded.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

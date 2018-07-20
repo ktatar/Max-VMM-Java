@@ -373,7 +373,7 @@ public class VMM implements java.io.Serializable{
     /**
      * Stores VOMM in vmm.ser
      */
-    private void writeVMM(){
+    public void writeVMM(){
         try{
             FileOutputStream fileOut = new FileOutputStream("vmm.ser");
             ObjectOutputStream out= new ObjectOutputStream(fileOut);
@@ -391,7 +391,7 @@ public class VMM implements java.io.Serializable{
      * Stores Vomm at set directory
      * @param file Directory to save to
      */
-    private void writeVMM(String file){
+    public void writeVMM(String file){
         try{
             FileOutputStream fileOut = new FileOutputStream(file);
             ObjectOutputStream out= new ObjectOutputStream(fileOut);

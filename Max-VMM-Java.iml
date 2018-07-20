@@ -15,5 +15,6 @@
     <orderEntry type="library" name="max" level="project" />
     <orderEntry type="library" name="commons-ip-math-1.20" level="project" />
     <orderEntry type="library" name="commons-math3-3.6.1" level="project" />
+    <orderEntry type="library" name="commons-ip-math-1.20" level="project" />
   </component>
 </module>

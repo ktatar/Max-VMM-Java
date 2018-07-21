@@ -59,9 +59,9 @@ public class VMMmeta extends MaxObject {
      */
     public void learn(String[] sequenceIn){
 
-        //String learnSequence = Atom.toOneString(sequenceIn);
+        String learnSequence = Atom.toOneString(sequenceIn);
         VMMinst.learn(sequenceIn);
-        post("learning the sequence " + Arrays.toString(sequenceIn));
+        post("learning the sequence " + learnSequence);
     }
 
     public void load(){

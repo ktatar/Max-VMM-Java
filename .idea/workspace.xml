@@ -2,14 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e78ab636-47cc-4007-b098-02e325fb9010" name="Default" comment="Working towards wrapping the code for Max.">
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/commons_ip_math_1_20.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Max-VMM-Java.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Max-VMM-Java.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/VommJava/vomm/VMM.java" beforeDir="false" afterPath="$PROJECT_DIR$/VommJava/vomm/VMM.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Max-VMM-Java/MaxTest.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Max-VMM-Java/vomm/VMM.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Max-VMM-Java/vomm/VMM.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Max-VMM-Java/vomm/lib/Helper.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Max-VMM-Java/vomm/lib/Helper.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Max-VMM-Java/vomm/lib/Pandas.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Max-VMM-Java/vomm/lib/Pandas.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/MaxTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VommJava/TestingVMM.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/VommJava/TestingVMM.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/VMMmeta.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/VMMmeta.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/VommJava/.idea/" />
@@ -23,14 +19,25 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="VMMmeta.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="VMMmeta.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/VMMmeta.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="15">
-              <caret line="1" column="16" lean-forward="true" selection-start-line="1" selection-start-column="16" selection-end-line="1" selection-end-column="16" />
+            <state relative-caret-position="651">
+              <caret line="49" column="36" selection-start-line="49" selection-start-column="36" selection-end-line="49" selection-end-column="36" />
               <folding>
-                <element signature="e#435#436#0" expanded="true" />
-                <element signature="e#469#470#0" expanded="true" />
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="VMM.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/VommJava/vomm/VMM.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="244">
+              <caret line="312" column="34" lean-forward="true" selection-start-line="312" selection-start-column="34" selection-end-line="312" selection-end-column="34" />
+              <folding>
+                <element signature="imports" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -42,6 +49,7 @@
     <findStrings>
       <find>save</find>
       <find>write</find>
+      <find>clear</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -66,6 +74,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="AndroidView" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -78,13 +87,23 @@
               <item name="Max-VMM-Java" type="462c0819:PsiDirectoryNode" />
               <item name="lib" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="Max-VMM-Java" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Max-VMM-Java" type="462c0819:PsiDirectoryNode" />
+              <item name="VommJava" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Max-VMM-Java" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Max-VMM-Java" type="462c0819:PsiDirectoryNode" />
+              <item name="VommJava" type="462c0819:PsiDirectoryNode" />
+              <item name="vomm" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="PackagesPane" />
       <pane id="Scope" />
-      <pane id="AndroidView" />
+      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -174,7 +193,6 @@
     <layout>
       <window_info anchor="right" id="Palette" order="3" />
       <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Messages" order="7" visible="true" weight="0.32914925" />
       <window_info anchor="right" id="Palette&#9;" order="3" />
       <window_info id="Image Layers" order="2" />
       <window_info anchor="right" id="Capture Analysis" order="3" />
@@ -185,7 +203,7 @@
       <window_info anchor="bottom" id="Terminal" order="7" />
       <window_info id="Capture Tool" order="2" />
       <window_info id="Designer" order="2" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.26323318" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.26680973" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info id="UI Designer" order="2" />
@@ -198,6 +216,7 @@
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Messages" order="7" visible="true" weight="0.32914925" />
     </layout>
   </component>
   <component name="VcsContentAnnotationSettings">
@@ -208,6 +227,16 @@
     <option name="LAST_COMMIT_MESSAGE" value="Working towards wrapping the code for Max." />
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/src/VMMmeta.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="15">
+          <caret line="1" column="16" lean-forward="true" selection-start-line="1" selection-start-column="16" selection-end-line="1" selection-end-column="16" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/VommJava/vomm/VMM.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="930">
@@ -230,8 +259,7 @@
         <state relative-caret-position="3390">
           <caret line="232" column="28" lean-forward="true" selection-start-line="232" selection-start-column="28" selection-end-line="232" selection-end-column="28" />
           <folding>
-            <element signature="e#435#436#0" expanded="true" />
-            <element signature="e#469#470#0" expanded="true" />
+            <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -258,8 +286,7 @@
         <state relative-caret-position="1020">
           <caret line="74" column="5" selection-start-line="74" selection-start-column="5" selection-end-line="74" selection-end-column="5" />
           <folding>
-            <element signature="e#435#436#0" expanded="true" />
-            <element signature="e#469#470#0" expanded="true" />
+            <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -286,8 +313,7 @@
         <state relative-caret-position="525">
           <caret line="41" column="28" lean-forward="true" selection-start-line="41" selection-start-column="28" selection-end-line="41" selection-end-column="28" />
           <folding>
-            <element signature="e#435#436#0" expanded="true" />
-            <element signature="e#469#470#0" expanded="true" />
+            <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -314,8 +340,7 @@
         <state relative-caret-position="450">
           <caret line="36" column="4" selection-start-line="36" selection-start-column="4" selection-end-line="36" selection-end-column="4" />
           <folding>
-            <element signature="e#435#436#0" expanded="true" />
-            <element signature="e#469#470#0" expanded="true" />
+            <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -344,30 +369,29 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/VommJava/vomm/VMM.java">
+    <entry file="file://$PROJECT_DIR$/VommJava/TestingVMM.class">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2792">
-          <caret line="393" column="10" selection-start-line="393" selection-start-column="10" selection-end-line="393" selection-end-column="10" />
+        <state relative-caret-position="15">
+          <caret line="4" lean-forward="true" selection-start-line="4" selection-end-line="17" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/VMMmeta.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="651">
+          <caret line="49" column="36" selection-start-line="49" selection-start-column="36" selection-end-line="49" selection-end-column="36" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/VommJava/TestingVMM.class">
+    <entry file="file://$PROJECT_DIR$/VommJava/vomm/VMM.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="10" lean-forward="true" selection-start-line="10" selection-end-line="10" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/VMMmeta.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="1" column="16" lean-forward="true" selection-start-line="1" selection-start-column="16" selection-end-line="1" selection-end-column="16" />
+        <state relative-caret-position="244">
+          <caret line="312" column="34" lean-forward="true" selection-start-line="312" selection-start-column="34" selection-end-line="312" selection-end-column="34" />
           <folding>
-            <element signature="e#435#436#0" expanded="true" />
-            <element signature="e#469#470#0" expanded="true" />
+            <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>

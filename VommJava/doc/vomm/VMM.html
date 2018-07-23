@@ -252,7 +252,7 @@ java.lang.Object
 <CODE>&nbsp;java.lang.String</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../vomm/VMM.html#sample_fuzzy(java.lang.String, int, double, int, boolean, boolean, boolean)">sample_fuzzy</A></B>(java.lang.String&nbsp;seed,
              int&nbsp;distance,
-             double&nbsp;modularity,
+             double&nbsp;typicality,
              int&nbsp;max_order,
              boolean&nbsp;use_seed,
              boolean&nbsp;use_feedback,
@@ -264,7 +264,7 @@ java.lang.Object
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;java.lang.String</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../vomm/VMM.html#sample(double, boolean)">sample</A></B>(double&nbsp;modularity,
+<TD><CODE><B><A HREF="../vomm/VMM.html#sample(double, boolean)">sample</A></B>(double&nbsp;typicality,
        boolean&nbsp;keep_history)</CODE>
 
 <BR>
@@ -274,7 +274,7 @@ java.lang.Object
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;java.lang.String</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../vomm/VMM.html#sample(java.lang.String, double, int, boolean, boolean, boolean)">sample</A></B>(java.lang.String&nbsp;seed,
-       double&nbsp;modularity,
+       double&nbsp;typicality,
        int&nbsp;max_order,
        boolean&nbsp;use_seed,
        boolean&nbsp;use_feedback,
@@ -431,7 +431,7 @@ public double <B>predict</B>(java.lang.String&nbsp;context,
 <A NAME="sample(double, boolean)"><!-- --></A><H3>
 sample</H3>
 <PRE>
-public java.lang.String <B>sample</B>(double&nbsp;modularity,
+public java.lang.String <B>sample</B>(double&nbsp;typicality,
                                boolean&nbsp;keep_history)</PRE>
 <DL>
 <DD>Samples Symbol from probabilities of Symbols appearing after empty sequence
@@ -440,7 +440,7 @@ public java.lang.String <B>sample</B>(double&nbsp;modularity,
 </DL>
 </DD>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>modularity</CODE> - value between 1-0 to decide the modularity of the probabilities<DD><CODE>keep_history</CODE> - boolean if sampled String should be added to generated history
+<DT><B>Parameters:</B><DD><CODE>typicality</CODE> - value between 1-0 to decide the typicality of the probabilities<DD><CODE>keep_history</CODE> - boolean if sampled String should be added to generated history
 <DT><B>Returns:</B><DD>Symbol sampled from the probability distribution following an empty seed</DL>
 </DD>
 </DL>
@@ -450,7 +450,7 @@ public java.lang.String <B>sample</B>(double&nbsp;modularity,
 sample</H3>
 <PRE>
 public java.lang.String <B>sample</B>(java.lang.String&nbsp;seed,
-                               double&nbsp;modularity,
+                               double&nbsp;typicality,
                                int&nbsp;max_order,
                                boolean&nbsp;use_seed,
                                boolean&nbsp;use_feedback,
@@ -462,7 +462,7 @@ public java.lang.String <B>sample</B>(java.lang.String&nbsp;seed,
 </DL>
 </DD>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>seed</CODE> - Seed used to sample next symbol<DD><CODE>modularity</CODE> - value between 1-0 to decide the modularity of the probabilities<DD><CODE>max_order</CODE> - int Maximal order of VOMM that should be used<DD><CODE>use_seed</CODE> - boolean if true internal seed is used<DD><CODE>use_feedback</CODE> - boolean if true will use whole history not just seed to sample<DD><CODE>keep_history</CODE> - boolean if true adds sample to this.generated_history
+<DT><B>Parameters:</B><DD><CODE>seed</CODE> - Seed used to sample next symbol<DD><CODE>typicality</CODE> - value between 1-0 to decide the typicality of the probabilities<DD><CODE>max_order</CODE> - int Maximal order of VOMM that should be used<DD><CODE>use_seed</CODE> - boolean if true internal seed is used<DD><CODE>use_feedback</CODE> - boolean if true will use whole history not just seed to sample<DD><CODE>keep_history</CODE> - boolean if true adds sample to this.generated_history
 <DT><B>Returns:</B><DD>Sampled Symbol</DL>
 </DD>
 </DL>
@@ -473,7 +473,7 @@ sample_fuzzy</H3>
 <PRE>
 public java.lang.String <B>sample_fuzzy</B>(java.lang.String&nbsp;seed,
                                      int&nbsp;distance,
-                                     double&nbsp;modularity,
+                                     double&nbsp;typicality,
                                      int&nbsp;max_order,
                                      boolean&nbsp;use_seed,
                                      boolean&nbsp;use_feedback,
@@ -485,7 +485,7 @@ public java.lang.String <B>sample_fuzzy</B>(java.lang.String&nbsp;seed,
 </DL>
 </DD>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>seed</CODE> - String context to get the similar contexts of     *<DD><CODE>distance</CODE> - Sets the amount of Hamming-distance<DD><CODE>modularity</CODE> - value between 1-0 to decide the modularity of the probabilities<DD><CODE>use_seed</CODE> - boolean if true internal seed is used<DD><CODE>use_feedback</CODE> - boolean if true will use whole history not just seed to sample<DD><CODE>keep_history</CODE> - boolean if true adds sample to this.generated_history
+<DT><B>Parameters:</B><DD><CODE>seed</CODE> - String context to get the similar contexts of     *<DD><CODE>distance</CODE> - Sets the amount of Hamming-distance<DD><CODE>typicality</CODE> - value between 1-0 to decide the typicality of the probabilities<DD><CODE>use_seed</CODE> - boolean if true internal seed is used<DD><CODE>use_feedback</CODE> - boolean if true will use whole history not just seed to sample<DD><CODE>keep_history</CODE> - boolean if true adds sample to this.generated_history
 <DT><B>Returns:</B><DD>Sampled symbol</DL>
 </DD>
 </DL>

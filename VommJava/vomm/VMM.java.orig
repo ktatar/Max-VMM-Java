@@ -6,6 +6,7 @@ import java.io.*;
 import java.util.*;
 
 
+
 public class VMM implements java.io.Serializable{
 
     private ArrayList<ArrayList<Integer>> permutations = new ArrayList<ArrayList<Integer>>();
@@ -41,8 +42,9 @@ public class VMM implements java.io.Serializable{
 
     /**
      *
-     * Generates VOMM from Dataset of sequences
-     * @param sequence Dataset of sequences to learn from
+     * Generates VOMM from sequence
+     *
+     * @param sequence sequence to learn from
      */
     public void learn(String sequence){
 
@@ -76,7 +78,13 @@ public class VMM implements java.io.Serializable{
      * @param use_seed boolean if Class seed should be used
      * @param use_feedback boolean if class generated history should be used
      */
+<<<<<<< HEAD
     public void update(String history, String symbol){
+=======
+    public void update(String history, String symbol, boolean use_seed, boolean use_feedback){
+        if(use_seed){history = history;}
+        if(use_feedback){history = this.seed + this.generated_history;}
+>>>>>>> 8fb49f8fa6238b4eb0be059352b9100158ce67c5
         int depth = history.length() < this.max_depth? history.length(): this.max_depth;
         if(depth == 0){
             this.counts.get(0).incrementValue(history, symbol);
@@ -133,10 +141,16 @@ public class VMM implements java.io.Serializable{
      * @param keep_history boolean if sampled String should be added to generated history
      * @return Symbol sampled from the probability distribution following an empty seed
      */
+<<<<<<< HEAD
+    public String sample(double typicality){
+        double[] probabilities = this.vmm.get(0).getValue("");
+        probabilities = Helper.modulate(probabilities, typicality);
+=======
     public String sample(double modularity,
                          boolean keep_history){
         double[] probabilities = this.prob_mats.get(0).getValue("");
         probabilities = Helper.modulate(probabilities, modularity);
+>>>>>>> 8fb49f8fa6238b4eb0be059352b9100158ce67c5
         EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(this.alpha_pos, probabilities);
         int idx = dist.sample();
         String sample = this.alphabet[idx];
@@ -165,8 +179,13 @@ public class VMM implements java.io.Serializable{
         if(use_feedback){seed = this.seed+this.generated_history;}
         if(seed.length() > max_order){seed = seed.substring(seed.length()-max_order);}
 
+<<<<<<< HEAD
+        double[] probabilities = this.vmm.get(seed.length()).getValue(seed);
+        probabilities = Helper.modulate(probabilities, typicality);
+=======
         double[] probabilities = this.prob_mats.get(seed.length()).getValue(seed);
         probabilities = Helper.modulate(probabilities, modularity);
+>>>>>>> 8fb49f8fa6238b4eb0be059352b9100158ce67c5
         double sum = Helper.sum_array(probabilities);
 
         //If the context did not appear reduce order by 1
@@ -227,11 +246,15 @@ public class VMM implements java.io.Serializable{
         }
         //getting mean probability
         double[]mean = Helper.divide_array(sum, idx.size());
+<<<<<<< HEAD
+        if (Helper.sum_array(sum) != 1){return this.sample(seed.substring(1),typicality, max_order, false, false, keep_history);}
+=======
 
         //escape if probability does not sum up to 1
         if (Helper.sum_array(mean) != 1){return this.sample(seed.substring(1),modularity, max_order, false, false, keep_history);}
 
         //sampling from distribution
+>>>>>>> 8fb49f8fa6238b4eb0be059352b9100158ce67c5
         EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(this.alpha_pos, mean);
         int id = dist.sample();
         String sample = this.alphabet[id];
@@ -239,6 +262,55 @@ public class VMM implements java.io.Serializable{
         return sample;
     }
 
+<<<<<<< HEAD
+    public ArrayList<Pandas> getVMM(){
+        return this.vmm;
+    }
+
+    public ArrayList<Pandas> getCounts(){
+        return this.counts;
+    }
+
+    public String[] getAlphabet(){
+        return this.alphabet;
+    }
+
+    public int getMax_order(){
+        return this.max_depth;
+    }
+
+    public String getSeed(){
+        return this.seed;
+    }
+
+    public void setSeed(String seed){
+        this.seed = seed;
+    }
+
+    public String getGenerated_history(){
+        return this.generated_history;
+    }
+
+    public String getWholeHistory(){
+        return this.seed+this.generated_history;
+    }
+
+    public void clearSeed(){
+        this.seed = "";
+    }
+
+    public void clearGenerate_History(){
+        this.generated_history = "";
+    }
+
+    public void clearWholeHistory(){
+        this.seed = "";
+        this.input_history = "";
+        this.generated_history = "";
+    }
+
+=======
+>>>>>>> 8fb49f8fa6238b4eb0be059352b9100158ce67c5
 
 
     /**

@@ -1,7 +1,5 @@
-package vomm;
-
 import org.apache.commons.math3.distribution.*;
-import vomm.lib.*;
+import lib.*;
 import java.io.*;
 import java.util.*;
 
@@ -58,13 +56,18 @@ public class VMM implements java.io.Serializable{
     public void update_generated_history(String generated){
 
         generated_history += generated;
-        //TODO - keep only the max. order number of symbols
+        if(generated_history.length()> this.max_depth){
+            this.generated_history = this.generated_history.substring(generated_history.length()-max_depth);
+        }
+
     }
 
     public void update_input_history(String input){
 
         input_history += input;
-        //TODO - keep only the max. order number of symbols
+        if(input_history.length()> this.max_depth){
+            this.input_history = this.input_history.substring(input_history.length()-max_depth);
+        }
     }
 
     /**
@@ -78,7 +81,7 @@ public class VMM implements java.io.Serializable{
         if(depth == 0){
             this.counts.get(0).incrementValue(history, symbol);
 
-            double[] values = Arrays.copyOf(this.counts.get(0).getValue(history), this.alphabet.length);
+            ArrayList<Double> values = (ArrayList<Double>) this.counts.get(0).getValue(history).clone();
             int dividend = (int)Helper.sum_array(values);
             this.prob_mats.get(0).setValue(history, Helper.divide_array(values, dividend));
         }
@@ -121,13 +124,20 @@ public class VMM implements java.io.Serializable{
     /**
      * Samples Symbol from probabilities of Symbols appearing after empty sequence
      * @param typicality value between 1-0 to decide the typicality of the probabilities
-     * @param keep_history boolean if sampled String should be added to generated history
      * @return Symbol sampled from the probability distribution following an empty seed
      */
     public String sample(double typicality){
-        double[] probabilities = this.prob_mats.get(0).getValue("");
+        ArrayList<Double> probabilities = this.prob_mats.get(0).getValue("");
         probabilities = Helper.modulate(probabilities, typicality);
-        EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(this.alpha_pos, probabilities);
+        Double[] Double_array = new Double[probabilities.size()];
+        Double_array = probabilities.toArray(Double_array);
+        int i = 0;
+        double[] array_probs = new double[Double_array.length];
+        for(Double d : Double_array) {
+            array_probs[i] = (double)d;
+            i++;
+        }
+        EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(this.prob_mats.get(0).alpha_pos, array_probs);
         int idx = dist.sample();
         String sample = this.alphabet[idx];
         update_generated_history(sample);
@@ -148,7 +158,7 @@ public class VMM implements java.io.Serializable{
         if(max_order < 0){throw new RuntimeException("Negative order impossible");}
         if(seed.length() > max_order){seed = seed.substring(seed.length()-max_order);}
 
-        double[] probabilities = this.prob_mats.get(seed.length()).getValue(seed);
+        ArrayList<Double> probabilities = this.prob_mats.get(seed.length()).getValue(seed);
         probabilities = Helper.modulate(probabilities, typicality);
         double sum = Helper.sum_array(probabilities);
 
@@ -156,9 +166,18 @@ public class VMM implements java.io.Serializable{
         if (sum != 1){
             System.out.println(sum); return this.sample(seed.substring(1),typicality, max_order);}
         //Sample-method from apache commons
-        EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(this.alpha_pos, probabilities);
+        Double[] Double_array = new Double[probabilities.size()];
+        Double_array = probabilities.toArray(Double_array);
+        int i = 0;
+        double[] array_probs = new double[Double_array.length];
+        for(Double d : Double_array) {
+            array_probs[i] = (double)d;
+            i++;
+        }
+        EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(this.prob_mats.get(0).alpha_pos, array_probs);
         int idx = dist.sample();
         String sample = this.alphabet[idx];
+        update_generated_history(sample);
         return sample;
     }
 
@@ -167,7 +186,6 @@ public class VMM implements java.io.Serializable{
      * @param seed String context to get the similar contexts of     *
      * @param distance Sets the amount of Hamming-distance
      * @param typicality value between 1-0 to decide the typicality of the probabilities
-     * @param use_seed boolean if true internal seed is used
      * @return Sampled symbol
      */
     public String sample_fuzzy(String seed, int distance, double typicality, int max_order){
@@ -194,24 +212,34 @@ public class VMM implements java.io.Serializable{
 
         //Get Contexts similar to input context by filtering with masks (ln.170) and get mean-probability
         idx = get_similar(is_similar_to, contexts );
-        double[] sum = new double[this.alphabet.length];
+        ArrayList<Double> sum = new ArrayList<Double>(Collections.nCopies(df.alphabet.size(), 0.0));
         for(int id: idx){
-            double[] probabilities = df.getValue(df.inverse_index_0.get(id));
+            ArrayList<Double> probabilities = df.getValue(df.inverse_index_0.get(id));
             probabilities = Helper.modulate(probabilities, typicality);
-            for(int i = 0; i < sum.length; i++){
-                sum[i] += probabilities[i];
+            for(int i = 0; i < probabilities.size(); i++){
+                Double value = sum.get(i);
+                sum.set(i, value + probabilities.get(i));
             }
         }
         //getting mean probability
-        double[]mean = Helper.divide_array(sum, idx.size());
+        ArrayList<Double> mean = Helper.divide_array(sum, idx.size());
 
         //escape if probability does not sum up to 1
         if (Helper.sum_array(mean) != 1){return this.sample(seed.substring(1),typicality, max_order);}
 
         //sampling from distribution
-        EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(this.alpha_pos, mean);
+        Double[] Double_array = new Double[mean.size()];
+        Double_array = mean.toArray(Double_array);
+        int i = 0;
+        double[] array_probs = new double[Double_array.length];
+        for(Double d : Double_array) {
+            array_probs[i] = (double)d;
+            i++;
+        }
+        EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(this.prob_mats.get(0).alpha_pos, array_probs);
         int id = dist.sample();
         String sample = this.alphabet[id];
+        update_generated_history(sample);
         return sample;
     }
 
@@ -238,9 +266,9 @@ public class VMM implements java.io.Serializable{
         for(Pandas df: this.prob_mats){
             for(int i = 0; i < df.length(); i++){
                 String context = df.getContext(i);
-                double[] values = df.getValue(context);
+                ArrayList<Double> values = df.getValue(context);
                 double sum = Helper.sum_array(values);
-                double[] probability = Helper.divide_array(values, sum);
+                ArrayList<Double> probability = Helper.divide_array(values, sum);
                 df.setValue(context, probability);
 
             }
@@ -312,18 +340,13 @@ public class VMM implements java.io.Serializable{
 
     private ArrayList<Pandas> copy(ArrayList<Pandas> src){
         ArrayList<Pandas> dest = new ArrayList<Pandas>();
-        for(int i = 0; i <= this.max_depth; i++){
-            Pandas df = new Pandas(this.alphabet, i);
-            dest.add(df);
-        }
         for( Pandas original : src) {
-            for (String context: original.inverse_index_0.values()) {
-                double[] values = Arrays.copyOf(original.getValue(context), this.alphabet.length);
-                dest.get(context.length()).setValue(context, values);
-            }
+            Pandas clone = new Pandas(original);
+            dest.add(clone);
         }
         return dest;
     }
+
 
 
     //Getter and Setter methods
@@ -350,8 +373,82 @@ public class VMM implements java.io.Serializable{
     public String getInput_history() { return this.input_history; }
 
 
-    public void writeVMM(){}
-    public void writeVMM(String filePath){}
-    public void loadVMM(){}
-    public void loadVMM(String filePath){}
+    public static VMM loadVMM(String name) {
+        try {
+            FileInputStream fileIn = new FileInputStream(name);
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+            VMM vomm = (VMM) in.readObject();
+            in.close();
+            fileIn.close();
+            System.out.println("Loaded Serialized VMM saved in " + name);
+            return vomm;
+        } catch (IOException i) {
+            i.printStackTrace();
+        } catch (ClassNotFoundException c) {
+            System.out.println("VMM class not found");
+            c.printStackTrace();
+        }
+        throw new RuntimeException("Failed loading");
+    }
+
+    /**
+     * Load VOMM with name vmm.ser in directory
+     */
+    public static VMM loadVMM() {
+
+        try {
+            FileInputStream fileIn = new FileInputStream("vmm.ser");
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+            VMM vomm = (VMM) in.readObject();
+            in.close();
+            fileIn.close();
+            System.out.println("Loaded Serialized VMM saved in vmm.ser");
+            return vomm;
+        } catch (IOException i) {
+            i.printStackTrace();
+        } catch (ClassNotFoundException c) {
+            System.out.println("VMM class not found");
+            c.printStackTrace();
+        }
+        throw new RuntimeException("Loading failed");
+    }
+
+
+    /**
+     * Stores VOMM in vmm.ser
+     */
+    public void writeVMM() {
+        try {
+            FileOutputStream fileOut = new FileOutputStream("vmm.ser");
+            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+            out.writeObject(this);
+            out.close();
+            fileOut.close();
+            System.out.println("Serialized VMM is saved in vmm.ser");
+
+        } catch (IOException i) {
+            i.printStackTrace();
+        }
+
+    }
+
+    /**
+     * Stores Vomm at set directory
+     *
+     * @param file Directory to save to
+     */
+    public void writeVMM(String file) {
+        try {
+            FileOutputStream fileOut = new FileOutputStream(file);
+            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+            out.writeObject(this);
+            out.close();
+            fileOut.close();
+            System.out.println("Serialized data is saved in " + file);
+        } catch (IOException i) {
+            i.printStackTrace();
+        }
+    }
 }
+
+

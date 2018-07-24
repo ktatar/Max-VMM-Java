@@ -6,6 +6,7 @@ import java.io.*;
 import java.util.*;
 
 
+
 public class VMM implements java.io.Serializable{
 
     private ArrayList<ArrayList<Integer>> permutations = new ArrayList<ArrayList<Integer>>();
@@ -15,6 +16,8 @@ public class VMM implements java.io.Serializable{
     private int[] alpha_pos;
     private int max_depth;
     private Set<ArrayList<Integer>> masks = new HashSet<ArrayList<Integer>>();
+    //Seed usable by sample (Use set method)
+    private String seed = "";
     //history of samples
     private String generated_history = "";
     //history of samples
@@ -39,8 +42,9 @@ public class VMM implements java.io.Serializable{
 
     /**
      *
-     * Generates VOMM from Dataset of sequences
-     * @param sequence Dataset of sequences to learn from
+     * Generates VOMM from sequence
+     *
+     * @param sequence sequence to learn from
      */
     public void learn(String sequence){
 
@@ -58,22 +62,29 @@ public class VMM implements java.io.Serializable{
     public void update_generated_history(String generated){
 
         generated_history += generated;
-        //TODO - keep only the max. order number of symbols
+
     }
 
     public void update_input_history(String input){
 
         input_history += input;
-        //TODO - keep only the max. order number of symbols
-    }
 
+    }
     /**
      * updates VOMM according to a history and the symbol appearing afterwards
      *
      * @param history String of chars appearing before symbol
      * @param symbol String that appears after history
+     * @param use_seed boolean if Class seed should be used
+     * @param use_feedback boolean if class generated history should be used
      */
+<<<<<<< HEAD
     public void update(String history, String symbol){
+=======
+    public void update(String history, String symbol, boolean use_seed, boolean use_feedback){
+        if(use_seed){history = history;}
+        if(use_feedback){history = this.seed + this.generated_history;}
+>>>>>>> 8fb49f8fa6238b4eb0be059352b9100158ce67c5
         int depth = history.length() < this.max_depth? history.length(): this.max_depth;
         if(depth == 0){
             this.counts.get(0).incrementValue(history, symbol);
@@ -90,20 +101,26 @@ public class VMM implements java.io.Serializable{
             this.prob_mats.get(order).setValue(context, Helper.divide_array(this.counts.get(order).getValue(context), dividend));
         }
     }
+
+    /**
+     * Clears stored seed
+     */
+    public void clearSeed(){
+        this.seed = "";
+    }
+
     /**
      * Clears stored history of last samples (generate_history)
      */
-    public void clearGeneratedHistory(){
+    public void clearGenerate_History(){
         this.generated_history = "";
     }
-    public void clearInputHistory(){
-        this.input_history = "";
-    }
+
     /**
-     * Clears input_history and generated_history
+     * Clears seed and generated_history
      */
     public void clearWholeHistory(){
-        this.input_history = "";
+        this.seed = "";
         this.generated_history = "";
     }
 
@@ -124,9 +141,16 @@ public class VMM implements java.io.Serializable{
      * @param keep_history boolean if sampled String should be added to generated history
      * @return Symbol sampled from the probability distribution following an empty seed
      */
+<<<<<<< HEAD
     public String sample(double typicality){
-        double[] probabilities = this.prob_mats.get(0).getValue("");
+        double[] probabilities = this.vmm.get(0).getValue("");
         probabilities = Helper.modulate(probabilities, typicality);
+=======
+    public String sample(double modularity,
+                         boolean keep_history){
+        double[] probabilities = this.prob_mats.get(0).getValue("");
+        probabilities = Helper.modulate(probabilities, modularity);
+>>>>>>> 8fb49f8fa6238b4eb0be059352b9100158ce67c5
         EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(this.alpha_pos, probabilities);
         int idx = dist.sample();
         String sample = this.alphabet[idx];
@@ -140,25 +164,38 @@ public class VMM implements java.io.Serializable{
      * @param seed Seed used to sample next symbol
      * @param typicality value between 1-0 to decide the typicality of the probabilities
      * @param max_order int Maximal order of VOMM that should be used
+     * @param use_seed boolean if true internal seed is used
+     * @param use_feedback boolean if true will use whole history not just seed to sample
+     * @param keep_history boolean if true adds sample to this.generated_history
      * @return Sampled Symbol
      */
 
-    public String sample(String seed, double typicality, int max_order){
+    //BURADA KALDIN!
+    public String sample(String seed, double typicality, int max_order,
+                         boolean use_seed, boolean use_feedback, boolean keep_history){
         if (max_order > this.prob_mats.size()){throw new RuntimeException("Context too long");}
         if(max_order < 0){throw new RuntimeException("Negative order impossible");}
+        if(use_seed){seed = this.seed;}
+        if(use_feedback){seed = this.seed+this.generated_history;}
         if(seed.length() > max_order){seed = seed.substring(seed.length()-max_order);}
 
-        double[] probabilities = this.prob_mats.get(seed.length()).getValue(seed);
+<<<<<<< HEAD
+        double[] probabilities = this.vmm.get(seed.length()).getValue(seed);
         probabilities = Helper.modulate(probabilities, typicality);
+=======
+        double[] probabilities = this.prob_mats.get(seed.length()).getValue(seed);
+        probabilities = Helper.modulate(probabilities, modularity);
+>>>>>>> 8fb49f8fa6238b4eb0be059352b9100158ce67c5
         double sum = Helper.sum_array(probabilities);
 
         //If the context did not appear reduce order by 1
         if (sum != 1){
-            System.out.println(sum); return this.sample(seed.substring(1),typicality, max_order);}
+            System.out.println(sum); return this.sample(seed.substring(1),typicality, max_order, false, false, keep_history);}
         //Sample-method from apache commons
         EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(this.alpha_pos, probabilities);
         int idx = dist.sample();
         String sample = this.alphabet[idx];
+        if(keep_history){this.generated_history += sample;}
         return sample;
     }
 
@@ -168,12 +205,17 @@ public class VMM implements java.io.Serializable{
      * @param distance Sets the amount of Hamming-distance
      * @param typicality value between 1-0 to decide the typicality of the probabilities
      * @param use_seed boolean if true internal seed is used
+     * @param use_feedback boolean if true will use whole history not just seed to sample
+     * @param keep_history boolean if true adds sample to this.generated_history
      * @return Sampled symbol
      */
-    public String sample_fuzzy(String seed, int distance, double typicality, int max_order){
+    public String sample_fuzzy(String seed, int distance, double typicality, int max_order,
+                               boolean use_seed, boolean use_feedback, boolean keep_history){
         // Getting rid of unwanted cases
         if (max_order > this.prob_mats.size())throw new RuntimeException("Context too long");
         if(max_order < 0)throw new RuntimeException("Negative order impossible");
+        if(use_seed)seed = this.seed;
+        if(use_feedback)seed = this.seed+this.generated_history;
         if(distance > seed.length() || distance < 0)throw new RuntimeException("Illegal distance ");
         if(seed.length() > max_order)seed = seed.substring(seed.length()-max_order);
 
@@ -190,7 +232,7 @@ public class VMM implements java.io.Serializable{
         byte[] is_similar_to = this.prob_mats.get(seed.length()).binarized.get(seed);
 
         //If context not appeared escape to order -1
-        if(is_similar_to == null){return sample(seed.substring(1),typicality, max_order);}
+        if(is_similar_to == null){return sample(seed.substring(1),typicality, max_order, false, false, keep_history);}
 
         //Get Contexts similar to input context by filtering with masks (ln.170) and get mean-probability
         idx = get_similar(is_similar_to, contexts );
@@ -204,17 +246,71 @@ public class VMM implements java.io.Serializable{
         }
         //getting mean probability
         double[]mean = Helper.divide_array(sum, idx.size());
+<<<<<<< HEAD
+        if (Helper.sum_array(sum) != 1){return this.sample(seed.substring(1),typicality, max_order, false, false, keep_history);}
+=======
 
         //escape if probability does not sum up to 1
-        if (Helper.sum_array(mean) != 1){return this.sample(seed.substring(1),typicality, max_order);}
+        if (Helper.sum_array(mean) != 1){return this.sample(seed.substring(1),modularity, max_order, false, false, keep_history);}
 
         //sampling from distribution
+>>>>>>> 8fb49f8fa6238b4eb0be059352b9100158ce67c5
         EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(this.alpha_pos, mean);
         int id = dist.sample();
         String sample = this.alphabet[id];
+        if(keep_history){this.generated_history += sample;}
         return sample;
     }
 
+<<<<<<< HEAD
+    public ArrayList<Pandas> getVMM(){
+        return this.vmm;
+    }
+
+    public ArrayList<Pandas> getCounts(){
+        return this.counts;
+    }
+
+    public String[] getAlphabet(){
+        return this.alphabet;
+    }
+
+    public int getMax_order(){
+        return this.max_depth;
+    }
+
+    public String getSeed(){
+        return this.seed;
+    }
+
+    public void setSeed(String seed){
+        this.seed = seed;
+    }
+
+    public String getGenerated_history(){
+        return this.generated_history;
+    }
+
+    public String getWholeHistory(){
+        return this.seed+this.generated_history;
+    }
+
+    public void clearSeed(){
+        this.seed = "";
+    }
+
+    public void clearGenerate_History(){
+        this.generated_history = "";
+    }
+
+    public void clearWholeHistory(){
+        this.seed = "";
+        this.input_history = "";
+        this.generated_history = "";
+    }
+
+=======
+>>>>>>> 8fb49f8fa6238b4eb0be059352b9100158ce67c5
 
 
     /**
@@ -343,15 +439,19 @@ public class VMM implements java.io.Serializable{
         return this.max_depth;
     }
 
+    public String getSeed(){
+        return this.seed;
+    }
+
+    public void setSeed(String seed){
+        this.seed = seed;
+    }
+
     public String getGenerated_history(){
         return this.generated_history;
     }
 
-    public String getInput_history() { return this.input_history; }
-
-
-    public void writeVMM(){}
-    public void writeVMM(String filePath){}
-    public void loadVMM(){}
-    public void loadVMM(String filePath){}
+    public String getWholeHistory(){
+        return this.seed+this.generated_history;
+    }
 }

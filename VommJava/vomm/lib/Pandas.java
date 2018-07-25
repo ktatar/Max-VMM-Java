@@ -118,18 +118,19 @@ public class Pandas implements java.io.Serializable {
      * @param value   value to set
      */
     public void setValue(String context, String symbol, double value) {
-        if (!this.index_1.containsKey(symbol)) {
-            this.index_1.put(symbol, this.index_1.size());
-            int[] new_alpha_pos = new int[this.alpha_pos.length+1];
-            for(int i = 0; i < new_alpha_pos.length; i++){
-                new_alpha_pos[i] = i;
-            }
-            this.alpha_pos = new_alpha_pos;
-            this.alphabet.add(symbol);
-            df.get(this.index_0.get(context)).add(0.0);
-        }
+
         if (this.index_0.containsKey(context)) {
             df.get(this.index_0.get(context)).set(this.index_1.get(symbol), value);
+            if (!this.index_1.containsKey(symbol)) {
+                this.index_1.put(symbol, this.index_1.size());
+                int[] new_alpha_pos = new int[this.alpha_pos.length+1];
+                for(int i = 0; i < new_alpha_pos.length; i++){
+                    new_alpha_pos[i] = i;
+                }
+                this.alpha_pos = new_alpha_pos;
+                this.alphabet.add(symbol);
+                df.get(this.index_0.get(context)).add(0.0);
+            }
         } else {
             this.addContext(context);
             this.setValue(context, symbol, value);
@@ -143,26 +144,25 @@ public class Pandas implements java.io.Serializable {
      * @param symbol  Sting symbol that appeared and the occurrence needs to be incremented of (Column-Name)
      */
     public void incrementValue(String context, String symbol) {
-        if (!this.index_1.containsKey(symbol)) {
-            this.index_1.put(symbol, this.index_1.size());
-            int[] new_alpha_pos = new int[this.alpha_pos.length+1];
-            for(int i = 0; i < new_alpha_pos.length; i++){
-                new_alpha_pos[i] = i;
-            }
-            this.alpha_pos = new_alpha_pos;
-            this.alphabet.add(symbol);
-            df.get(this.index_0.get(context)).add(0.0);
 
-        }
         if (this.index_0.containsKey(context)) {
+            if (!this.index_1.containsKey(symbol)) {
+                this.index_1.put(symbol, this.index_1.size());
+                int[] new_alpha_pos = new int[this.alpha_pos.length+1];
+                for(int i = 0; i < new_alpha_pos.length; i++){
+                    new_alpha_pos[i] = i;
+                }
+                this.alpha_pos = new_alpha_pos;
+                this.alphabet.add(symbol);
+                df.get(this.index_0.get(context)).add(0.0);
 
+            }
             df.get(this.index_0.get(context)).set(this.index_1.get(symbol), df.get(this.index_0.get(context)).get(this.index_1.get(symbol)) + 1);
         } else {
             this.addContext(context);
             this.incrementValue(context, symbol);
         }
     }
-
     /**
      * Get array of values stored in position [context]
      *

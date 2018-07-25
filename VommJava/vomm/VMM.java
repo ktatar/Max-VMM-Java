@@ -37,17 +37,19 @@ public class VMM implements java.io.Serializable{
 
     /**
      *
-     * Generates VOMM from Dataset of sequences
+     * Generates VOMM from Dataset of sequences if not already done and then learns
      * @param sequence Dataset of sequences to learn from
      */
     public void learn(String sequence){
+        int level = 0;
 
-        for(int level = 0; level <= this.max_depth; level++) {
+        while((counts.size() <= this.max_depth)) {
             Pandas df = new Pandas(this.alphabet, level);
             this.counts.add(df);
+            level++;
         }
         int depth = sequence.length() < this.max_depth? sequence.length(): this.max_depth;
-        for(int level = 0; level <= depth; level++){this.fillPandas(sequence,level);}
+        for(level = 0; level <= depth; level++){this.fillPandas(sequence,level);}
         this.prob_mats = this.copy(this.counts);
         this.compute_prob_mat();
     }

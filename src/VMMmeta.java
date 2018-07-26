@@ -1,16 +1,14 @@
 import com.cycling74.max.*;
-import vomm.VMM;
-
-import java.util.Arrays;
 
 public class VMMmeta extends MaxObject {
 
     //member variables
     public boolean learningVar;
     public String[] alphabet;
+    public boolean generation_started;
     int alphabetSize;
     int max_order;
-    boolean stream_learning;
+    int gen_max_order;
     VMM VMMinst;
 
     public VMMmeta()
@@ -25,6 +23,8 @@ public class VMMmeta extends MaxObject {
     public VMMmeta(int orderIn, int alphabetSizeIn)
     {
         max_order = orderIn;
+        gen_max_order = max_order;
+        generation_started = false;
 
         //create the alphabet
         alphabetSize = alphabetSizeIn;
@@ -32,31 +32,13 @@ public class VMMmeta extends MaxObject {
         for (int i=0; i<alphabetSize;i++){
             alphabet[i]= Integer.toString(i);
         }
-        stream_learning = false;
         VMMinst = new VMM(alphabet, max_order);
         post("Created a VMMmeta with max. order "+max_order+", and the alphabet size "+alphabetSize);
 
     }
 
-    public void stream_learning(boolean stream_learningIn) {
-        stream_learning = stream_learningIn;
-    }
-
-/*    public void bang() {
-        //testCode - TO BE SUPPRESSED
-        String[] alphabet = {"a","b","c","d","r"};
-        String[] seqs = {"abbbbbcdddddr"};
-
-        VMM vmm = new VMM(alphabet);
-        vmm.learn(seqs, 10);
-        //System.out.println(vmm.sample("b"));
-        System.out.println(vmm.generate_sequence(11,4));
-        outlet(0, "Congratulations!");
-    }*/
-/**
-     *
-     * Generates VOMM from Dataset of sequences
-     */
+    //Training methods start here
+    //Learn a sequence
     public void learn(Atom[] sequenceIn){
 
         String learnSequence = Atom.toOneString(sequenceIn);
@@ -64,6 +46,51 @@ public class VMMmeta extends MaxObject {
         post("learning the sequence " + learnSequence);
     }
 
+    //Learn a symbol combined with the input history.
+    public void stream_learning(Atom[] stream_learningIn) {
+        if (stream_learningIn.length>1) {
+            bail("stream_learning expects one symbol at a time. Use learn to train VMM on sequences.");
+        }
+        else {
+            String stream_symbol = Atom.toOneString(stream_learningIn);
+            VMMinst.update_input_history(stream_symbol);
+            VMMinst.learn(VMMinst.getInput_history());
+        }
+    }
+
+    public void stream(Atom[] stream_genIn){
+        this.stream_learning(stream_genIn);
+        String generated = VMMinst.sample(VMMinst.getGenerated_history(), VMMinst.typicality, this.gen_max_order);
+        VMMinst.update_generated_history(generated);
+        //TODO outlet generated
+    }
+
+    //Generation Methods
+    public void genstart(){
+        VMMinst.clearWholeHistory();
+        this.generation_started = true;
+        String generated = VMMinst.sample(VMMinst.typicality);
+        VMMinst.update_generated_history(generated);
+        // TODO outlet
+    }
+
+    public void bang(){
+        if(!(this.generation_started)) this.genstart();
+        else {
+            String generated = VMMinst.sample(VMMinst.getGenerated_history(), VMMinst.typicality, this.gen_max_order);
+            VMMinst.update_generated_history(generated);
+            //TODO outlet generated
+        }
+    }
+
+    public void context(Atom[] contextIn){
+        String contextGen = Atom.toOneString(contextIn);
+        VMMinst.update_input_history(contextGen);
+        String generated = VMMinst.sample(contextGen, VMMinst.typicality, this.gen_max_order);
+        //TODO outlet generated
+    }
+
+    //Save and Load the VMM
     public void load(){
 
         VMMinst.loadVMM();
@@ -83,10 +110,22 @@ public class VMMmeta extends MaxObject {
 
         VMMinst.writeVMM(filePath);
     }
+    //
+    public void setGen_max_order(int max_orderIn){
+        if ( max_orderIn <= this.max_order){
+            this.gen_max_order = max_orderIn;
+        }
+        else bail("Max. order of generation cannot be greater than the maximum VMM order.");
+    }
+    //Clear state
 
-    public void genstart(){
+    public void clearInputHistory(){
+        VMMinst.clearInputHistory();
+    }
+
+    public void clearHistory(){
         VMMinst.clearWholeHistory();
-        VMMinst.sample(VMMinst.typicality);
+        this.generation_started = false;
     }
 
 }

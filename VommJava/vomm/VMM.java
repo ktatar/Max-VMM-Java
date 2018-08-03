@@ -1,6 +1,6 @@
 package vomm;
 
-import vomm.lib.*;
+import lib.*;
 import org.apache.commons.math3.distribution.*;
 import java.io.*;
 import java.util.*;

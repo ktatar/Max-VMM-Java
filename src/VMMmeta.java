@@ -1,3 +1,5 @@
+import vomm.VMM;
+
 import com.cycling74.max.*;
 
 public class VMMmeta extends MaxObject {
@@ -80,7 +82,7 @@ public class VMMmeta extends MaxObject {
         VMMinst.update_generated_history(generated);
         post("Generation Started");
         //outlet(info_idx,new Atom[]{Atom.newAtom("genstarted")});
-        outlet(0, new Atom[]{Atom.newAtom(generated)})
+        outlet(0, new Atom[]{Atom.newAtom(generated)});
     }
 
     public void bang(){

@@ -10,10 +10,12 @@ public class VMMmeta extends MaxObject {
     int max_order;
     int gen_max_order;
     VMM VMMinst;
+    int info_idx;
+
 
     public VMMmeta()
     {
-        bail("(mxj foo) must provide 3 parameters max. order and the alphabet size [mxj VMMmeta 3 10]");
+        bail("(mxj foo) must provide 2 parameters max. order and the alphabet size [mxj VMMmeta 3 10]");
     }
     public VMMmeta(int orderIn)
     {
@@ -34,6 +36,10 @@ public class VMMmeta extends MaxObject {
         }
         VMMinst = new VMM(alphabet, max_order);
         post("Created a VMMmeta with max. order "+max_order+", and the alphabet size "+alphabetSize);
+
+        //Declare outlets
+        this.declareOutlets(new int[]{DataTypes.ALL});
+        info_idx = getInfoIdx();
 
     }
 
@@ -68,10 +74,13 @@ public class VMMmeta extends MaxObject {
     //Generation Methods
     public void genstart(){
         VMMinst.clearWholeHistory();
+        post("History Cleared");
         this.generation_started = true;
         String generated = VMMinst.sample(VMMinst.typicality);
         VMMinst.update_generated_history(generated);
-        // TODO outlet
+        post("Generation Started");
+        //outlet(info_idx,new Atom[]{Atom.newAtom("genstarted")});
+        outlet(0, new Atom[]{Atom.newAtom(generated)})
     }
 
     public void bang(){

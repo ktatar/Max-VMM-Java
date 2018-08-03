@@ -21,7 +21,18 @@ public class VMMmeta extends MaxObject {
     }
     public VMMmeta(int orderIn)
     {
-        this(orderIn, 100);
+        max_order = orderIn;
+        gen_max_order = max_order;
+        generation_started = false;
+
+        //create the alphabet
+        //TODO alphabet = new String[];
+        VMMinst = new VMM(alphabet, max_order);
+        post("Created a VMMmeta with max. order "+max_order+", and the alphabet size "+alphabetSize);
+
+        //Declare outlets
+        this.declareOutlets(new int[]{DataTypes.ALL});
+        info_idx = getInfoIdx();
     }
 
     public VMMmeta(int orderIn, int alphabetSizeIn)

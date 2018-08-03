@@ -1,5 +1,6 @@
 package vomm;
 
+import com.cycling74.max.Atom;
 import lib.*;
 import org.apache.commons.math3.distribution.*;
 import java.io.*;
@@ -139,7 +140,7 @@ public class VMM implements java.io.Serializable{
      * @param typicality value between 1-0 to decide the typicality of the probabilities
      * @return Symbol sampled from the probability distribution following an empty seed
      */
-    public String sample(double typicality){
+    public Atom[] sample(double typicality){
         ArrayList<Double> probabilities = this.prob_mats.get(0).getValue("");
         probabilities = Helper.modulate(probabilities, typicality);
         Double[] Double_array = new Double[probabilities.size()];
@@ -154,7 +155,8 @@ public class VMM implements java.io.Serializable{
         int idx = dist.sample();
         String sample = this.alphabet[idx];
         update_generated_history(sample);
-        return sample;
+        Atom[] dumpAtom = new Atom[]{Atom.newAtom(sample),Atom.newAtom(array_probs[idx])};
+        return dumpAtom;
     }
 
     /**
@@ -166,7 +168,7 @@ public class VMM implements java.io.Serializable{
      * @return Sampled Symbol
      */
 
-    public String sample(String seed, double typicality, int max_order){
+    public Atom[] sample(String seed, double typicality, int max_order){
         if (max_order > this.prob_mats.size()){throw new RuntimeException("Context too long");}
         if(max_order < 0){throw new RuntimeException("Negative order impossible");}
         if(seed.length() > max_order){seed = seed.substring(seed.length()-max_order);}
@@ -191,7 +193,8 @@ public class VMM implements java.io.Serializable{
         int idx = dist.sample();
         String sample = this.alphabet[idx];
         update_generated_history(sample);
-        return sample;
+        Atom[] dumpAtom = new Atom[]{Atom.newAtom(sample),Atom.newAtom(array_probs[idx])};
+        return dumpAtom;
     }
 
     /**
@@ -201,7 +204,7 @@ public class VMM implements java.io.Serializable{
      * @param typicality value between 1-0 to decide the typicality of the probabilities
      * @return Sampled symbol
      */
-    public String sample_fuzzy(String seed, int distance, double typicality, int max_order){
+    public Atom[] sample_fuzzy(String seed, int distance, double typicality, int max_order){
         // Getting rid of unwanted cases
         if (max_order > this.prob_mats.size())throw new RuntimeException("Context too long");
         if(max_order < 0)throw new RuntimeException("Negative order impossible");
@@ -253,7 +256,9 @@ public class VMM implements java.io.Serializable{
         int id = dist.sample();
         String sample = this.alphabet[id];
         update_generated_history(sample);
-        return sample;
+        Atom[] dumpAtom;
+        dumpAtom = new Atom[]{Atom.newAtom(sample),Atom.newAtom(array_probs[idx])};
+        return dumpAtom;
     }
 
 

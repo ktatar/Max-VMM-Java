@@ -10,8 +10,6 @@ import java.util.*;
 public class VMM implements java.io.Serializable{
 
 
-    // Non-Unique list of masks
-    private ArrayList<ArrayList<Integer>> permutations = new ArrayList<ArrayList<Integer>>();
     // Transfer-Matrix of VOMM
     private ArrayList<Pandas> prob_mats;
     // Counts of Symbol given Contexts
@@ -22,8 +20,7 @@ public class VMM implements java.io.Serializable{
     private int[] alpha_pos;
     // Maximal order of VOMM
     private int max_depth;
-    //Unique Masks used for fuzzy sampling (filter to acquire contexts that are similar to the input)
-    private Set<ArrayList<Integer>> masks = new HashSet<ArrayList<Integer>>();
+
     //history of samples
     private ArrayList<String> generated_history = new ArrayList<String>();
     //history of seeds
@@ -54,6 +51,7 @@ public class VMM implements java.io.Serializable{
      */
     public void learn(ArrayList<String> sequence){
         int level = 0;
+        sequence.removeAll(Arrays.asList("",null));
         while((level <= this.max_depth)) {
             Pandas df = new Pandas(this.alphabet, level);
             this.counts.add(df);
@@ -211,23 +209,15 @@ public class VMM implements java.io.Serializable{
         if(distance > seed.size() || distance < 0)throw new RuntimeException("Illegal distance ");
         if(seed.size() > max_order)seed = new ArrayList<String>(seed.subList(seed.size()-max_order,seed.size()));
 
-        /*
-        If needed masks not yet generated generate masks
-        these masks are ints corresponding to boolean arrays that check if only n-values in the contexts are different
-        from the original context (n = distance)
-        */
-        if (this.masks.size() != seed.size()) this.generate_masks(seed.size(), distance);
-
         Pandas df = this.prob_mats.get(seed.size());
         ArrayList<Integer> idx;
-        List<byte[]> contexts = new ArrayList<byte[]>(this.prob_mats.get(seed.size()).binarized.values());
-        byte[] is_similar_to = this.prob_mats.get(seed.size()).binarized.get(seed);
+        ArrayList<ArrayList<String>> contexts = new ArrayList<ArrayList<String>>(this.prob_mats.get(seed.size()).inverse_index_0.values());
 
         //If context not appeared escape to order -1
-        if(is_similar_to == null){return sample(new ArrayList<String>(seed.subList(1,seed.size())),typicality, max_order);}
+        if(!contexts.contains(seed)){return sample(new ArrayList<String>(seed.subList(1,seed.size())),typicality, max_order);}
 
         //Get Contexts similar to input context by filtering with masks (ln.170) and get mean-probability
-        idx = get_similar(is_similar_to, contexts );
+        idx = get_similar(seed,contexts,distance );
         ArrayList<Double> sum = new ArrayList<Double>(Collections.nCopies(df.alphabet.size(), 0.0));
         for(int id: idx){
             ArrayList<Double> probabilities = df.getValue(df.inverse_index_0.get(id));
@@ -294,62 +284,20 @@ public class VMM implements java.io.Serializable{
         }
     }
 
-    /**
-     * Generates Masks for finding contexts with certain Hamming-distance
-     * @param length length of of context
-     * @param distance Hamming-Distance
-     */
-    private void generate_masks(int length, int distance){
-        Integer[]ones = new Integer[length-distance];
-        Arrays.fill(ones, Integer.MAX_VALUE);
-        Integer []zeros = new Integer[distance];
-        Arrays.fill(zeros, 0);
-        ArrayList<Integer> alphabet = new ArrayList<Integer>();
-        alphabet.addAll(Arrays.asList(ones));
-        alphabet.addAll(Arrays.asList(zeros));
-        permutingArray(alphabet, 0);
-        this.masks = new HashSet<ArrayList<Integer>>(this.permutations);
-
-
-    }
-
-    /**
-     * Used to create all possible masks referring to a set Hamming-Distance
-     * @param arrayList
-     * @param element
-     */
-    private void permutingArray(ArrayList<Integer> arrayList, int element) {
-        for (int i = element; i < arrayList.size(); i++){
-            java.util.Collections.swap(arrayList, i, element);
-            permutingArray(arrayList, element + 1);
-            java.util.Collections.swap(arrayList, element, i);
-        }
-        if (element == arrayList.size() - 1) {
-            ArrayList<Integer> list3 = new ArrayList<Integer>(arrayList);
-            this.permutations.add(list3);
-        }
-    }
 
     /**
      * Returns list of indices of the contexts that are similar to a certain context
-     * @param is_similar_to context to compare with
+     * @param seed context to compare with
      * @param contexts list of all possible contexts
+     * @param distance Hamming-Distance to check
      * @return
      */
-    private ArrayList<Integer> get_similar(byte[] is_similar_to, List<byte[]> contexts) {
+    private ArrayList<Integer> get_similar(ArrayList<String> seed, ArrayList<ArrayList<String >> contexts, int distance) {
         ArrayList<Integer> idx = new ArrayList<Integer>();
-        boolean is_similar = false;
-        for(ArrayList<Integer>mask : this.masks){
-            for(int id = 0; id < contexts.size(); id++){
-                byte[] context = contexts.get(id);
-                is_similar = false;
-                for(int i = 0; i < context.length; i++){
-                    if(is_similar){
-                        idx.add(id);
-                        break;
-                    }
-                    is_similar = ((is_similar_to[i] & mask.get(i)) & context[i]) == (is_similar_to[i] & mask.get(i));
-                }
+        for(int i = 0; i < contexts.size(); i++){
+            contexts.get(i).removeAll(seed);
+            if(contexts.get(i).size()== distance){
+                idx.add(i);
             }
         }
         return idx;

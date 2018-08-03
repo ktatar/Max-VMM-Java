@@ -29,10 +29,7 @@ public class Pandas implements java.io.Serializable {
     public HashMap<Integer, ArrayList<String>> inverse_index_0;
     //Column Index (Alphabet -> Index)
     public HashMap<String, Integer> index_1;
-    // Binarized Contexts used for bitwise comparison with masks to get contexts with set Hamming-Distance
-    public HashMap<ArrayList<String>, byte[]> binarized = new HashMap();
-    // Inverse of Binarized
-    HashMap<byte[], ArrayList<String>> inverse_binarized = new HashMap();
+
 
     //DataFrame
     public ArrayList<ArrayList<Double>> df = new ArrayList<ArrayList<Double>>();
@@ -65,8 +62,6 @@ public class Pandas implements java.io.Serializable {
         }
         this.depth = src.depth;
         this.alphabet = (ArrayList<String>) src.alphabet.clone();
-        this.binarized = (HashMap<ArrayList<String>, byte[]>) src.binarized.clone();
-        this.inverse_binarized = (HashMap<byte[], ArrayList<String>>) src.inverse_binarized.clone();
         this.alpha_pos = src.alpha_pos.clone();
 
     }
@@ -98,9 +93,6 @@ public class Pandas implements java.io.Serializable {
             throw new RuntimeException("Context is to long!");
         }
         this.index_0.put(context, df.size());
-        byte[] binarized = Helper.binarize(context);
-        this.binarized.put(context, binarized);
-        this.inverse_binarized.put(binarized, context);
         this.inverse_index_0.put(df.size(), context);
         ArrayList<Double> context_list = new ArrayList<Double>(Collections.nCopies(this.alphabet.size(), 0.0));
         df.add(context_list);

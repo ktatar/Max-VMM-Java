@@ -30,7 +30,4 @@ public class Helper {
         }
         return sum;
     }
-    public static byte[] binarize(String str) {
-        return str.getBytes();
-    }
 }

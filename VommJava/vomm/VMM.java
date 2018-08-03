@@ -17,7 +17,7 @@ public class VMM implements java.io.Serializable{
     // Counts of Symbol given Contexts
     private ArrayList<Pandas> counts;
     //Initial alphabet may not be correct if new symbols are added
-    private String[] alphabet;
+    private ArrayList<String> alphabet;
     //String[]alphabet transformed to their index in VOMM
     private int[] alpha_pos;
     // Maximal order of VOMM
@@ -33,16 +33,16 @@ public class VMM implements java.io.Serializable{
 
     /**
      * Constructor Initializes parameters need for VOMM
-     * @param alphabet String[] of strings used in the dataset
+     * @param alphabet ArrayList<String> of strings used in the dataset
      * @param max_depth int maximal order of layers in VOMM
      */
-    public VMM(String[] alphabet, int max_depth){
+    public VMM(ArrayList<String> alphabet, int max_depth){
         this.alphabet = alphabet;
         //this.vmm = new ArrayList<Pandas>();
         this.counts = new ArrayList<Pandas>();
-        this.alpha_pos = new int[alphabet.length];
+        this.alpha_pos = new int[alphabet.size()];
         this.max_depth = max_depth;
-        for (int i = 0; i < alphabet.length; i++){
+        for (int i = 0; i < alphabet.size(); i++){
             this.alpha_pos[i] = i;
         }
     }
@@ -153,7 +153,7 @@ public class VMM implements java.io.Serializable{
         }
         EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(this.prob_mats.get(0).alpha_pos, array_probs);
         int idx = dist.sample();
-        String sample = this.alphabet[idx];
+        String sample = this.alphabet.get(idx);
         update_generated_history(sample);
         Atom[] dumpAtom = new Atom[]{Atom.newAtom(sample),Atom.newAtom(array_probs[idx])};
         return dumpAtom;
@@ -191,7 +191,7 @@ public class VMM implements java.io.Serializable{
         }
         EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(this.prob_mats.get(0).alpha_pos, array_probs);
         int idx = dist.sample();
-        String sample = this.alphabet[idx];
+        String sample = this.alphabet.get(idx);
         update_generated_history(sample);
         Atom[] dumpAtom = new Atom[]{Atom.newAtom(sample),Atom.newAtom(array_probs[idx])};
         return dumpAtom;
@@ -254,10 +254,10 @@ public class VMM implements java.io.Serializable{
         }
         EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(this.prob_mats.get(0).alpha_pos, array_probs);
         int id = dist.sample();
-        String sample = this.alphabet[id];
+        String sample = this.alphabet.get(id);
         update_generated_history(sample);
         Atom[] dumpAtom;
-        dumpAtom = new Atom[]{Atom.newAtom(sample),Atom.newAtom(array_probs[idx])};
+        dumpAtom = new Atom[]{Atom.newAtom(sample),Atom.newAtom(array_probs[id])};
         return dumpAtom;
     }
 
@@ -275,7 +275,7 @@ public class VMM implements java.io.Serializable{
             String symbol = Character.toString(seq.charAt(i + depth));
             this.counts.get(depth).incrementValue(context, symbol);
         }
-        this.alphabet = this.counts.get(depth).alphabet.toArray(new String[this.counts.get(depth).alphabet.size()]);
+        this.alphabet = this.counts.get(depth).alphabet;
     }
 
     /**
@@ -377,7 +377,7 @@ public class VMM implements java.io.Serializable{
         return this.counts;
     }
 
-    public String[] getAlphabet(){
+    public ArrayList<String> getAlphabet(){
         return this.alphabet;
     }
 

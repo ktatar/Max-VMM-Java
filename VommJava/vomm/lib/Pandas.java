@@ -42,16 +42,16 @@ public class Pandas implements java.io.Serializable {
      * @param alphabet Array of Strings use in Dataset
      * @param depth    Order of Vomm
      */
-    public Pandas(String[] alphabet, int depth) {
+    public Pandas(ArrayList<String> alphabet, int depth) {
 
         index_0 = new HashMap();
         index_1 = new HashMap();
         inverse_index_0 = new HashMap();
         this.depth = depth;
-        this.alphabet = new ArrayList<String>(Arrays.asList(alphabet));
-        this.alpha_pos = new int[alphabet.length];
-        for (int i = 0; i < alphabet.length; i++) {
-            this.index_1.put(alphabet[i], i);
+        this.alphabet = alphabet;
+        this.alpha_pos = new int[alphabet.size()];
+        for (int i = 0; i < alphabet.size(); i++) {
+            this.index_1.put(alphabet.get(i), i);
             this.alpha_pos[i] = i;
         }
     }

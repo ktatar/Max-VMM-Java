@@ -1,23 +1,33 @@
+package vomm;
 
+import vomm.lib.*;
 import org.apache.commons.math3.distribution.*;
-import lib.*;
 import java.io.*;
 import java.util.*;
 
 
 public class VMM implements java.io.Serializable{
 
+
+    // Non-Unique list of masks
     private ArrayList<ArrayList<Integer>> permutations = new ArrayList<ArrayList<Integer>>();
+    // Transfer-Matrix of VOMM
     private ArrayList<Pandas> prob_mats;
+    // Counts of Symbol given Contexts
     private ArrayList<Pandas> counts;
+    //Initial alphabet may not be correct if new symbols are added
     private String[] alphabet;
+    //String[]alphabet transformed to their index in VOMM
     private int[] alpha_pos;
+    // Maximal order of VOMM
     private int max_depth;
+    //Unique Masks used for fuzzy sampling (filter to acquire contexts that are similar to the input)
     private Set<ArrayList<Integer>> masks = new HashSet<ArrayList<Integer>>();
     //history of samples
     private String generated_history = "";
-    //history of samples
+    //history of seeds
     private String input_history = "";
+    //Typicality used for modulating the probability
     public double typicality = 1.0;
 
     /**
@@ -38,19 +48,19 @@ public class VMM implements java.io.Serializable{
 
     /**
      *
-     * Generates VOMM from Dataset of sequences if not already done and then learns
+     * Generates VOMM from Dataset of sequences
      * @param sequence Dataset of sequences to learn from
      */
     public void learn(String sequence){
         int level = 0;
-
-        while((counts.size() <= this.max_depth)) {
+        while((level <= this.max_depth)) {
             Pandas df = new Pandas(this.alphabet, level);
             this.counts.add(df);
+            if (sequence.length()-level >= 0 ){
+                this.fillPandas(sequence, level);
+            }
             level++;
         }
-        int depth = sequence.length() < this.max_depth? sequence.length(): this.max_depth;
-        for(level = 0; level <= depth; level++){this.fillPandas(sequence,level);}
         this.prob_mats = this.copy(this.counts);
         this.compute_prob_mat();
     }
@@ -260,6 +270,7 @@ public class VMM implements java.io.Serializable{
             String symbol = Character.toString(seq.charAt(i + depth));
             this.counts.get(depth).incrementValue(context, symbol);
         }
+        this.alphabet = this.counts.get(depth).alphabet.toArray(new String[this.counts.get(depth).alphabet.size()]);
     }
 
     /**

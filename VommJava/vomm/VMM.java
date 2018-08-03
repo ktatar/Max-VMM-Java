@@ -17,7 +17,7 @@ public class VMM implements java.io.Serializable{
     // Counts of Symbol given Contexts
     private ArrayList<Pandas> counts;
     //Initial alphabet may not be correct if new symbols are added
-    private ArrayList<String> alphabet = new ArrayList<String>();
+    private ArrayList<String> alphabet;
     //String[]alphabet transformed to their index in VOMM
     private int[] alpha_pos;
     // Maximal order of VOMM
@@ -25,27 +25,17 @@ public class VMM implements java.io.Serializable{
     //Unique Masks used for fuzzy sampling (filter to acquire contexts that are similar to the input)
     private Set<ArrayList<Integer>> masks = new HashSet<ArrayList<Integer>>();
     //history of samples
-    private String generated_history = "";
+    private ArrayList<String> generated_history = new ArrayList<String>();
     //history of seeds
-    private String input_history = "";
+    private ArrayList input_history = new ArrayList<String>();
     //Typicality used for modulating the probability
     public double typicality = 1.0;
 
     /**
      * Constructor Initializes parameters need for VOMM
+     * @param alphabet ArrayList<String> of strings used in the dataset
      * @param max_depth int maximal order of layers in VOMM
      */
-
-    public VMM(int max_depth){
-        //this.vmm = new ArrayList<Pandas>();
-        this.counts = new ArrayList<Pandas>();
-        this.alpha_pos = new int[alphabet.size()];
-        this.max_depth = max_depth;
-        for (int i = 0; i < alphabet.size(); i++){
-            this.alpha_pos[i] = i;
-        }
-    }
-
     public VMM(ArrayList<String> alphabet, int max_depth){
         this.alphabet = alphabet;
         //this.vmm = new ArrayList<Pandas>();
@@ -62,12 +52,12 @@ public class VMM implements java.io.Serializable{
      * Generates VOMM from Dataset of sequences
      * @param sequence Dataset of sequences to learn from
      */
-    public void learn(String sequence){
+    public void learn(ArrayList<String> sequence){
         int level = 0;
         while((level <= this.max_depth)) {
             Pandas df = new Pandas(this.alphabet, level);
             this.counts.add(df);
-            if (sequence.length()-level >= 0 ){
+            if (sequence.size()-level >= 0 ){
                 this.fillPandas(sequence, level);
             }
             level++;
@@ -79,18 +69,18 @@ public class VMM implements java.io.Serializable{
 
     public void update_generated_history(String generated){
 
-        generated_history += generated;
-        if(generated_history.length()> this.max_depth){
-            this.generated_history = this.generated_history.substring(generated_history.length()-max_depth);
+        generated_history.add(generated);
+        if(generated_history.size()> this.max_depth){
+            this.generated_history = new ArrayList<String>(this.generated_history.subList(generated_history.size()-max_depth, this.generated_history.size()));
         }
 
     }
 
-    public void update_input_history(String input){
+    public void update_input_history(ArrayList<String> input){
 
-        input_history += input;
-        if(input_history.length()> this.max_depth){
-            this.input_history = this.input_history.substring(input_history.length()-max_depth);
+        input_history.addAll(input);
+        if(input_history.size()> this.max_depth){
+            this.input_history = new ArrayList<String>(this.input_history.subList(input_history.size()-max_depth,input_history.size()));
         }
     }
 
@@ -100,8 +90,8 @@ public class VMM implements java.io.Serializable{
      * @param history String of chars appearing before symbol
      * @param symbol String that appears after history
      */
-    public void update(String history, String symbol){
-        int depth = history.length() < this.max_depth? history.length(): this.max_depth;
+    public void update(ArrayList<String> history, String symbol){
+        int depth = history.size() < this.max_depth? history.size(): this.max_depth;
         if(depth == 0){
             this.counts.get(0).incrementValue(history, symbol);
 
@@ -110,7 +100,7 @@ public class VMM implements java.io.Serializable{
             this.prob_mats.get(0).setValue(history, Helper.divide_array(values, dividend));
         }
         for (int order = 0; order < depth; order++){
-            String context = history.substring(history.length()-order);
+            ArrayList<String> context = new ArrayList<String>(history.subList(history.size()-order, history.size()));
             System.out.println("in");
             this.counts.get(order).incrementValue(context, symbol);
             int dividend= (int)Helper.sum_array(this.counts.get(order).getValue(context));
@@ -121,17 +111,17 @@ public class VMM implements java.io.Serializable{
      * Clears stored history of last samples (generate_history)
      */
     public void clearGeneratedHistory(){
-        this.generated_history = "";
+        this.generated_history = new ArrayList<String>();
     }
     public void clearInputHistory(){
-        this.input_history = "";
+        new ArrayList<String>();
     }
     /**
      * Clears input_history and generated_history
      */
     public void clearWholeHistory(){
-        this.input_history = "";
-        this.generated_history = "";
+        this.input_history = new ArrayList<String>();
+        this.generated_history = new ArrayList<String>();
     }
 
     /**
@@ -140,9 +130,9 @@ public class VMM implements java.io.Serializable{
      * @param symbol String that you want to no the probability of appearing from
      * @return probability P(symbol|context)
      */
-    public double predict(String context, String symbol){
-        if (this.prob_mats.get(context.length()).getValue(context, symbol) == 0){return this.predict(context.substring(1),symbol);}
-        return this.prob_mats.get(context.length()).getValue(context, symbol);
+    public double predict(ArrayList<String> context, String symbol){
+        if (this.prob_mats.get(context.size()).getValue(context, symbol) == 0){return this.predict(new ArrayList<String>(context.subList(1, context.size())),symbol);}
+        return this.prob_mats.get(context.size()).getValue(context, symbol);
     }
 
     /**
@@ -150,8 +140,8 @@ public class VMM implements java.io.Serializable{
      * @param typicality value between 1-0 to decide the typicality of the probabilities
      * @return Symbol sampled from the probability distribution following an empty seed
      */
-    public Atom[] sampleStart(double typicality){
-        ArrayList<Double> probabilities = this.prob_mats.get(0).getValue("");
+    public Atom[] sample(double typicality){
+        ArrayList<Double> probabilities = this.prob_mats.get(0).getValue(new ArrayList<String>());
         probabilities = Helper.modulate(probabilities, typicality);
         Double[] Double_array = new Double[probabilities.size()];
         Double_array = probabilities.toArray(Double_array);
@@ -178,18 +168,18 @@ public class VMM implements java.io.Serializable{
      * @return Sampled Symbol
      */
 
-    public Atom[] sample(String seed, double typicality, int max_order){
+    public Atom[] sample(ArrayList<String> seed, double typicality, int max_order){
         if (max_order > this.prob_mats.size()){throw new RuntimeException("Context too long");}
         if(max_order < 0){throw new RuntimeException("Negative order impossible");}
-        if(seed.length() > max_order){seed = seed.substring(seed.length()-max_order);}
+        if(seed.size() > max_order){seed = new ArrayList<String>(seed.subList(seed.size()-max_order,seed.size()));}
 
-        ArrayList<Double> probabilities = this.prob_mats.get(seed.length()).getValue(seed);
+        ArrayList<Double> probabilities = this.prob_mats.get(seed.size()).getValue(seed);
         probabilities = Helper.modulate(probabilities, typicality);
         double sum = Helper.sum_array(probabilities);
 
         //If the context did not appear reduce order by 1
         if (sum != 1){
-            System.out.println(sum); return this.sample(seed.substring(1),typicality, max_order);}
+            System.out.println(sum); return this.sample(new ArrayList<String>(seed.subList(1,seed.size())),typicality, max_order);}
         //Sample-method from apache commons
         Double[] Double_array = new Double[probabilities.size()];
         Double_array = probabilities.toArray(Double_array);
@@ -214,27 +204,27 @@ public class VMM implements java.io.Serializable{
      * @param typicality value between 1-0 to decide the typicality of the probabilities
      * @return Sampled symbol
      */
-    public Atom[] sample_fuzzy(String seed, int distance, double typicality, int max_order){
+    public Atom[] sample_fuzzy(ArrayList<String> seed, int distance, double typicality, int max_order){
         // Getting rid of unwanted cases
         if (max_order > this.prob_mats.size())throw new RuntimeException("Context too long");
         if(max_order < 0)throw new RuntimeException("Negative order impossible");
-        if(distance > seed.length() || distance < 0)throw new RuntimeException("Illegal distance ");
-        if(seed.length() > max_order)seed = seed.substring(seed.length()-max_order);
+        if(distance > seed.size() || distance < 0)throw new RuntimeException("Illegal distance ");
+        if(seed.size() > max_order)seed = new ArrayList<String>(seed.subList(seed.size()-max_order,seed.size()));
 
         /*
         If needed masks not yet generated generate masks
         these masks are ints corresponding to boolean arrays that check if only n-values in the contexts are different
         from the original context (n = distance)
         */
-        if (this.masks.size() != seed.length()) this.generate_masks(seed.length(), distance);
+        if (this.masks.size() != seed.size()) this.generate_masks(seed.size(), distance);
 
-        Pandas df = this.prob_mats.get(seed.length());
+        Pandas df = this.prob_mats.get(seed.size());
         ArrayList<Integer> idx;
-        List<byte[]> contexts = new ArrayList<byte[]>(this.prob_mats.get(seed.length()).binarized.values());
-        byte[] is_similar_to = this.prob_mats.get(seed.length()).binarized.get(seed);
+        List<byte[]> contexts = new ArrayList<byte[]>(this.prob_mats.get(seed.size()).binarized.values());
+        byte[] is_similar_to = this.prob_mats.get(seed.size()).binarized.get(seed);
 
         //If context not appeared escape to order -1
-        if(is_similar_to == null){return sample(seed.substring(1),typicality, max_order);}
+        if(is_similar_to == null){return sample(new ArrayList<String>(seed.subList(1,seed.size())),typicality, max_order);}
 
         //Get Contexts similar to input context by filtering with masks (ln.170) and get mean-probability
         idx = get_similar(is_similar_to, contexts );
@@ -251,7 +241,7 @@ public class VMM implements java.io.Serializable{
         ArrayList<Double> mean = Helper.divide_array(sum, idx.size());
 
         //escape if probability does not sum up to 1
-        if (Helper.sum_array(mean) != 1){return this.sample(seed.substring(1),typicality, max_order);}
+        if (Helper.sum_array(mean) != 1){return this.sample(new ArrayList<String>(seed.subList(1, seed.size())),typicality, max_order);}
 
         //sampling from distribution
         Double[] Double_array = new Double[mean.size()];
@@ -278,11 +268,11 @@ public class VMM implements java.io.Serializable{
      * @param seq Data to learn from
      * @param depth VOMM order to update
      */
-    private void fillPandas(String seq, int depth){
+    private void fillPandas(ArrayList<String> seq, int depth){
         int extra_depth = depth +1;
-        for (int i = 0; i <= seq.length() - extra_depth; i++) {
-            String context = seq.substring(i, i + (depth));
-            String symbol = Character.toString(seq.charAt(i + depth));
+        for (int i = 0; i <= seq.size() - extra_depth; i++) {
+            ArrayList<String> context = new ArrayList<String>(seq.subList(i, i + (depth)));
+            String symbol = seq.get(i + depth);
             this.counts.get(depth).incrementValue(context, symbol);
         }
         this.alphabet = this.counts.get(depth).alphabet;
@@ -294,7 +284,7 @@ public class VMM implements java.io.Serializable{
     private void compute_prob_mat(){
         for(Pandas df: this.prob_mats){
             for(int i = 0; i < df.length(); i++){
-                String context = df.getContext(i);
+                ArrayList<String> context = df.getContext(i);
                 ArrayList<Double> values = df.getValue(context);
                 double sum = Helper.sum_array(values);
                 ArrayList<Double> probability = Helper.divide_array(values, sum);
@@ -395,11 +385,11 @@ public class VMM implements java.io.Serializable{
         return this.max_depth;
     }
 
-    public String getGenerated_history(){
+    public ArrayList<String> getGenerated_history(){
         return this.generated_history;
     }
 
-    public String getInput_history() { return this.input_history; }
+    public ArrayList<String> getInput_history() { return this.input_history; }
 
 
     public static VMM loadVMM(String name) {
@@ -421,7 +411,7 @@ public class VMM implements java.io.Serializable{
     }
 
     /**
-     * Load VOMM
+     * Load VOMM with name vmm.ser in directory
      */
     public static VMM loadVMM() {
 
@@ -444,7 +434,7 @@ public class VMM implements java.io.Serializable{
 
 
     /**
-     * Stores VOMM
+     * Stores VOMM in vmm.ser
      */
     public void writeVMM() {
         try {

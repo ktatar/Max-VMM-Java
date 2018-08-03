@@ -24,15 +24,15 @@ public class Pandas implements java.io.Serializable {
     //Converting alphabet to their  (needed for Sample method only takes array not collection)
     public int[] alpha_pos;
     //Row Index (Context -> Index)
-    HashMap<String, Integer> index_0;
+    HashMap<ArrayList<String>, Integer> index_0;
     //Row Name (Index -> Context)
-    public HashMap<Integer, String> inverse_index_0;
+    public HashMap<Integer, ArrayList<String>> inverse_index_0;
     //Column Index (Alphabet -> Index)
     public HashMap<String, Integer> index_1;
     // Binarized Contexts used for bitwise comparison with masks to get contexts with set Hamming-Distance
-    public HashMap<String, byte[]> binarized = new HashMap();
+    public HashMap<ArrayList<String>, byte[]> binarized = new HashMap();
     // Inverse of Binarized
-    HashMap<byte[], String> inverse_binarized = new HashMap();
+    HashMap<byte[], ArrayList<String>> inverse_binarized = new HashMap();
 
     //DataFrame
     public ArrayList<ArrayList<Double>> df = new ArrayList<ArrayList<Double>>();
@@ -57,16 +57,16 @@ public class Pandas implements java.io.Serializable {
     }
 
     public Pandas(Pandas src) {
-        index_0 = (HashMap<String, Integer>) src.index_0.clone();
+        index_0 = (HashMap<ArrayList<String>, Integer>) src.index_0.clone();
         index_1 = (HashMap<String, Integer>) src.index_1.clone();
-        inverse_index_0 = (HashMap<Integer, String>) src.inverse_index_0.clone();
+        inverse_index_0 = (HashMap<Integer, ArrayList<String>>) src.inverse_index_0.clone();
         for(ArrayList<Double>old_df: src.df){
             this.df.add((ArrayList<Double>) old_df.clone());
         }
         this.depth = src.depth;
         this.alphabet = (ArrayList<String>) src.alphabet.clone();
-        this.binarized = (HashMap<String, byte[]>) src.binarized.clone();
-        this.inverse_binarized = (HashMap<byte[], String>) src.inverse_binarized.clone();
+        this.binarized = (HashMap<ArrayList<String>, byte[]>) src.binarized.clone();
+        this.inverse_binarized = (HashMap<byte[], ArrayList<String>>) src.inverse_binarized.clone();
         this.alpha_pos = src.alpha_pos.clone();
 
     }
@@ -84,7 +84,7 @@ public class Pandas implements java.io.Serializable {
      * @param index Index that you want the context of (Row-Index)
      * @return
      */
-    public String getContext(int index) {
+    public ArrayList<String> getContext(int index) {
         return inverse_index_0.get(index);
     }
 
@@ -93,8 +93,8 @@ public class Pandas implements java.io.Serializable {
      *
      * @param context String to be added (Row-Name)
      */
-    public void addContext(String context) {
-        if (context.length() > depth) {
+    public void addContext(ArrayList<String> context) {
+        if (context.size() > depth) {
             throw new RuntimeException("Context is to long!");
         }
         this.index_0.put(context, df.size());
@@ -112,7 +112,7 @@ public class Pandas implements java.io.Serializable {
      * @param context String context you want to change the value of (Row-Name)
      * @param values  Array of values to set
      */
-    public void setValue(String context, ArrayList<Double> values) {
+    public void setValue(ArrayList<String> context, ArrayList<Double> values) {
         if (this.index_0.containsKey(context)) {
             df.set(this.index_0.get(context), values);
         } else {
@@ -128,7 +128,7 @@ public class Pandas implements java.io.Serializable {
      * @param symbol  String of symbol you want to change the value of (Column-Name)
      * @param value   value to set
      */
-    public void setValue(String context, String symbol, double value) {
+    public void setValue(ArrayList<String> context, String symbol, double value) {
 
         if (this.index_0.containsKey(context)) {
             df.get(this.index_0.get(context)).set(this.index_1.get(symbol), value);
@@ -154,7 +154,7 @@ public class Pandas implements java.io.Serializable {
      * @param context String context to increment the occurrence of symbol (Row-Name)
      * @param symbol  Sting symbol that appeared and the occurrence needs to be incremented of (Column-Name)
      */
-    public void incrementValue(String context, String symbol) {
+    public void incrementValue(ArrayList<String > context, String symbol) {
 
         if (this.index_0.containsKey(context)) {
             if (!this.index_1.containsKey(symbol)) {
@@ -182,12 +182,12 @@ public class Pandas implements java.io.Serializable {
      * @param context String context to get the values from (Row-Name)
      * @return Array of all the values in the row of context
      */
-    public ArrayList<Double> getValue(String context) {
-        if (context.length() == 0) {
+    public ArrayList<Double> getValue(ArrayList<String> context) {
+        if (context.size() == 0) {
             return df.get(0);
         }
         if (!this.index_0.containsKey(context)) {
-            return this.getValue(context.substring(1));
+            return this.getValue(new ArrayList<String>(context.subList(1,context.size())));
         }
         return df.get(this.index_0.get(context));
     }
@@ -199,7 +199,7 @@ public class Pandas implements java.io.Serializable {
      * @param symbol  String symbol to get the value from (Column-Name)
      * @return Value of Symbol given Context
      */
-    public double getValue(String context, String symbol) {
+    public double getValue(ArrayList<String> context, String symbol) {
         if (!this.index_1.containsKey(symbol)) {
             throw new RuntimeException("Symbol not in alphabet!");
         }
@@ -215,7 +215,7 @@ public class Pandas implements java.io.Serializable {
      * @param context String context to print the vales from (Row-Name)
      * @return Printable String of values in row context
      */
-    public String toString(String context) {
+    public String toString(ArrayList<String> context) {
         if (!this.index_0.containsKey(context)) {
             throw new RuntimeException("Context not in training sequences!");
         }

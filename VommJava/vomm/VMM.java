@@ -17,7 +17,7 @@ public class VMM implements java.io.Serializable{
     // Counts of Symbol given Contexts
     private ArrayList<Pandas> counts;
     //Initial alphabet may not be correct if new symbols are added
-    private ArrayList<String> alphabet;
+    private ArrayList<String> alphabet = new ArrayList<String>();
     //String[]alphabet transformed to their index in VOMM
     private int[] alpha_pos;
     // Maximal order of VOMM
@@ -33,9 +33,19 @@ public class VMM implements java.io.Serializable{
 
     /**
      * Constructor Initializes parameters need for VOMM
-     * @param alphabet ArrayList<String> of strings used in the dataset
      * @param max_depth int maximal order of layers in VOMM
      */
+
+    public VMM(int max_depth){
+        //this.vmm = new ArrayList<Pandas>();
+        this.counts = new ArrayList<Pandas>();
+        this.alpha_pos = new int[alphabet.size()];
+        this.max_depth = max_depth;
+        for (int i = 0; i < alphabet.size(); i++){
+            this.alpha_pos[i] = i;
+        }
+    }
+
     public VMM(ArrayList<String> alphabet, int max_depth){
         this.alphabet = alphabet;
         //this.vmm = new ArrayList<Pandas>();
@@ -140,7 +150,7 @@ public class VMM implements java.io.Serializable{
      * @param typicality value between 1-0 to decide the typicality of the probabilities
      * @return Symbol sampled from the probability distribution following an empty seed
      */
-    public Atom[] sample(double typicality){
+    public Atom[] sampleStart(double typicality){
         ArrayList<Double> probabilities = this.prob_mats.get(0).getValue("");
         probabilities = Helper.modulate(probabilities, typicality);
         Double[] Double_array = new Double[probabilities.size()];
@@ -411,7 +421,7 @@ public class VMM implements java.io.Serializable{
     }
 
     /**
-     * Load VOMM with name vmm.ser in directory
+     * Load VOMM
      */
     public static VMM loadVMM() {
 
@@ -434,7 +444,7 @@ public class VMM implements java.io.Serializable{
 
 
     /**
-     * Stores VOMM in vmm.ser
+     * Stores VOMM
      */
     public void writeVMM() {
         try {

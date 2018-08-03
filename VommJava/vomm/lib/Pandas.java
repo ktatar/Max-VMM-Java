@@ -1,4 +1,4 @@
-package lib;
+package vomm.lib;
 
 /**
  * The Pandas program implements the functions I need from the python pandas library
@@ -17,15 +17,26 @@ import java.util.HashMap;
 
 public class Pandas implements java.io.Serializable {
 
+    //Order of VOMM
     int depth;
+    //List of String corresponding to the alphabet used in this order of the VOMM
     public ArrayList<String> alphabet;
-    HashMap<String, Integer> index_0;
-    public HashMap<Integer, String> inverse_index_0;
-    public HashMap<String, Integer> index_1;
-    public HashMap<String, byte[]> binarized = new HashMap();
-    HashMap<byte[], String> inverse_binarized = new HashMap();
-    public ArrayList<ArrayList<Double>> df = new ArrayList<ArrayList<Double>>();
+    //Converting alphabet to their  (needed for Sample method only takes array not collection)
     public int[] alpha_pos;
+    //Row Index (Context -> Index)
+    HashMap<String, Integer> index_0;
+    //Row Name (Index -> Context)
+    public HashMap<Integer, String> inverse_index_0;
+    //Column Index (Alphabet -> Index)
+    public HashMap<String, Integer> index_1;
+    // Binarized Contexts used for bitwise comparison with masks to get contexts with set Hamming-Distance
+    public HashMap<String, byte[]> binarized = new HashMap();
+    // Inverse of Binarized
+    HashMap<byte[], String> inverse_binarized = new HashMap();
+
+    //DataFrame
+    public ArrayList<ArrayList<Double>> df = new ArrayList<ArrayList<Double>>();
+
 
     /**
      * @param alphabet Array of Strings use in Dataset
@@ -147,6 +158,7 @@ public class Pandas implements java.io.Serializable {
 
         if (this.index_0.containsKey(context)) {
             if (!this.index_1.containsKey(symbol)) {
+                //System.out.println("Symbol not in alphabet");
                 this.index_1.put(symbol, this.index_1.size());
                 int[] new_alpha_pos = new int[this.alpha_pos.length+1];
                 for(int i = 0; i < new_alpha_pos.length; i++){
@@ -163,6 +175,7 @@ public class Pandas implements java.io.Serializable {
             this.incrementValue(context, symbol);
         }
     }
+
     /**
      * Get array of values stored in position [context]
      *

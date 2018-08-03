@@ -1,0 +1,457 @@
+package vomm;
+
+import org.apache.commons.math3.distribution.*;
+import vomm.lib.*;
+import java.io.*;
+import java.util.*;
+
+
+
+public class VMM implements java.io.Serializable{
+
+    private ArrayList<ArrayList<Integer>> permutations = new ArrayList<ArrayList<Integer>>();
+    private ArrayList<Pandas> prob_mats;
+    private ArrayList<Pandas> counts;
+    private String[] alphabet;
+    private int[] alpha_pos;
+    private int max_depth;
+    private Set<ArrayList<Integer>> masks = new HashSet<ArrayList<Integer>>();
+    //Seed usable by sample (Use set method)
+    private String seed = "";
+    //history of samples
+    private String generated_history = "";
+    //history of samples
+    private String input_history = "";
+    public double typicality = 1.0;
+
+    /**
+     * Constructor Initializes parameters need for VOMM
+     * @param alphabet String[] of strings used in the dataset
+     * @param max_depth int maximal order of layers in VOMM
+     */
+    public VMM(String[] alphabet, int max_depth){
+        this.alphabet = alphabet;
+        //this.vmm = new ArrayList<Pandas>();
+        this.counts = new ArrayList<Pandas>();
+        this.alpha_pos = new int[alphabet.length];
+        this.max_depth = max_depth;
+        for (int i = 0; i < alphabet.length; i++){
+            this.alpha_pos[i] = i;
+        }
+    }
+
+    /**
+     *
+     * Generates VOMM from sequence
+     *
+     * @param sequence sequence to learn from
+     */
+    public void learn(String sequence){
+
+        for(int level = 0; level <= this.max_depth; level++) {
+            Pandas df = new Pandas(this.alphabet, level);
+            this.counts.add(df);
+        }
+        int depth = sequence.length() < this.max_depth? sequence.length(): this.max_depth;
+        for(int level = 0; level <= depth; level++){this.fillPandas(sequence,level);}
+        this.prob_mats = this.copy(this.counts);
+        this.compute_prob_mat();
+    }
+
+
+    public void update_generated_history(String generated){
+
+        generated_history += generated;
+
+    }
+
+    public void update_input_history(String input){
+
+        input_history += input;
+
+    }
+    /**
+     * updates VOMM according to a history and the symbol appearing afterwards
+     *
+     * @param history String of chars appearing before symbol
+     * @param symbol String that appears after history
+     * @param use_seed boolean if Class seed should be used
+     * @param use_feedback boolean if class generated history should be used
+     */
+<<<<<<< HEAD
+    public void update(String history, String symbol){
+=======
+    public void update(String history, String symbol, boolean use_seed, boolean use_feedback){
+        if(use_seed){history = history;}
+        if(use_feedback){history = this.seed + this.generated_history;}
+>>>>>>> 8fb49f8fa6238b4eb0be059352b9100158ce67c5
+        int depth = history.length() < this.max_depth? history.length(): this.max_depth;
+        if(depth == 0){
+            this.counts.get(0).incrementValue(history, symbol);
+
+            double[] values = Arrays.copyOf(this.counts.get(0).getValue(history), this.alphabet.length);
+            int dividend = (int)Helper.sum_array(values);
+            this.prob_mats.get(0).setValue(history, Helper.divide_array(values, dividend));
+        }
+        for (int order = 0; order < depth; order++){
+            String context = history.substring(history.length()-order);
+            System.out.println("in");
+            this.counts.get(order).incrementValue(context, symbol);
+            int dividend= (int)Helper.sum_array(this.counts.get(order).getValue(context));
+            this.prob_mats.get(order).setValue(context, Helper.divide_array(this.counts.get(order).getValue(context), dividend));
+        }
+    }
+
+    /**
+     * Clears stored seed
+     */
+    public void clearSeed(){
+        this.seed = "";
+    }
+
+    /**
+     * Clears stored history of last samples (generate_history)
+     */
+    public void clearGenerate_History(){
+        this.generated_history = "";
+    }
+
+    /**
+     * Clears seed and generated_history
+     */
+    public void clearWholeHistory(){
+        this.seed = "";
+        this.generated_history = "";
+    }
+
+    /**
+     * Returns probability of Symbol appearing after context
+     * @param context String that appeared before symbol
+     * @param symbol String that you want to no the probability of appearing from
+     * @return probability P(symbol|context)
+     */
+    public double predict(String context, String symbol){
+        if (this.prob_mats.get(context.length()).getValue(context, symbol) == 0){return this.predict(context.substring(1),symbol);}
+        return this.prob_mats.get(context.length()).getValue(context, symbol);
+    }
+
+    /**
+     * Samples Symbol from probabilities of Symbols appearing after empty sequence
+     * @param typicality value between 1-0 to decide the typicality of the probabilities
+     * @param keep_history boolean if sampled String should be added to generated history
+     * @return Symbol sampled from the probability distribution following an empty seed
+     */
+<<<<<<< HEAD
+    public String sample(double typicality){
+        double[] probabilities = this.vmm.get(0).getValue("");
+        probabilities = Helper.modulate(probabilities, typicality);
+=======
+    public String sample(double modularity,
+                         boolean keep_history){
+        double[] probabilities = this.prob_mats.get(0).getValue("");
+        probabilities = Helper.modulate(probabilities, modularity);
+>>>>>>> 8fb49f8fa6238b4eb0be059352b9100158ce67c5
+        EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(this.alpha_pos, probabilities);
+        int idx = dist.sample();
+        String sample = this.alphabet[idx];
+        update_generated_history(sample);
+        return sample;
+    }
+
+    /**
+     * Returns one character sampling from probabilities of Symbols appearing after context
+     *
+     * @param seed Seed used to sample next symbol
+     * @param typicality value between 1-0 to decide the typicality of the probabilities
+     * @param max_order int Maximal order of VOMM that should be used
+     * @param use_seed boolean if true internal seed is used
+     * @param use_feedback boolean if true will use whole history not just seed to sample
+     * @param keep_history boolean if true adds sample to this.generated_history
+     * @return Sampled Symbol
+     */
+
+    //BURADA KALDIN!
+    public String sample(String seed, double typicality, int max_order,
+                         boolean use_seed, boolean use_feedback, boolean keep_history){
+        if (max_order > this.prob_mats.size()){throw new RuntimeException("Context too long");}
+        if(max_order < 0){throw new RuntimeException("Negative order impossible");}
+        if(use_seed){seed = this.seed;}
+        if(use_feedback){seed = this.seed+this.generated_history;}
+        if(seed.length() > max_order){seed = seed.substring(seed.length()-max_order);}
+
+<<<<<<< HEAD
+        double[] probabilities = this.vmm.get(seed.length()).getValue(seed);
+        probabilities = Helper.modulate(probabilities, typicality);
+=======
+        double[] probabilities = this.prob_mats.get(seed.length()).getValue(seed);
+        probabilities = Helper.modulate(probabilities, modularity);
+>>>>>>> 8fb49f8fa6238b4eb0be059352b9100158ce67c5
+        double sum = Helper.sum_array(probabilities);
+
+        //If the context did not appear reduce order by 1
+        if (sum != 1){
+            System.out.println(sum); return this.sample(seed.substring(1),typicality, max_order, false, false, keep_history);}
+        //Sample-method from apache commons
+        EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(this.alpha_pos, probabilities);
+        int idx = dist.sample();
+        String sample = this.alphabet[idx];
+        if(keep_history){this.generated_history += sample;}
+        return sample;
+    }
+
+    /**
+     * Sampling Symbol from the mean probability distribution described by similar contexts to input(Similarity-Measure = Hamming-Distance)
+     * @param seed String context to get the similar contexts of     *
+     * @param distance Sets the amount of Hamming-distance
+     * @param typicality value between 1-0 to decide the typicality of the probabilities
+     * @param use_seed boolean if true internal seed is used
+     * @param use_feedback boolean if true will use whole history not just seed to sample
+     * @param keep_history boolean if true adds sample to this.generated_history
+     * @return Sampled symbol
+     */
+    public String sample_fuzzy(String seed, int distance, double typicality, int max_order,
+                               boolean use_seed, boolean use_feedback, boolean keep_history){
+        // Getting rid of unwanted cases
+        if (max_order > this.prob_mats.size())throw new RuntimeException("Context too long");
+        if(max_order < 0)throw new RuntimeException("Negative order impossible");
+        if(use_seed)seed = this.seed;
+        if(use_feedback)seed = this.seed+this.generated_history;
+        if(distance > seed.length() || distance < 0)throw new RuntimeException("Illegal distance ");
+        if(seed.length() > max_order)seed = seed.substring(seed.length()-max_order);
+
+        /*
+        If needed masks not yet generated generate masks
+        these masks are ints corresponding to boolean arrays that check if only n-values in the contexts are different
+        from the original context (n = distance)
+        */
+        if (this.masks.size() != seed.length()) this.generate_masks(seed.length(), distance);
+
+        Pandas df = this.prob_mats.get(seed.length());
+        ArrayList<Integer> idx;
+        List<byte[]> contexts = new ArrayList<byte[]>(this.prob_mats.get(seed.length()).binarized.values());
+        byte[] is_similar_to = this.prob_mats.get(seed.length()).binarized.get(seed);
+
+        //If context not appeared escape to order -1
+        if(is_similar_to == null){return sample(seed.substring(1),typicality, max_order, false, false, keep_history);}
+
+        //Get Contexts similar to input context by filtering with masks (ln.170) and get mean-probability
+        idx = get_similar(is_similar_to, contexts );
+        double[] sum = new double[this.alphabet.length];
+        for(int id: idx){
+            double[] probabilities = df.getValue(df.inverse_index_0.get(id));
+            probabilities = Helper.modulate(probabilities, typicality);
+            for(int i = 0; i < sum.length; i++){
+                sum[i] += probabilities[i];
+            }
+        }
+        //getting mean probability
+        double[]mean = Helper.divide_array(sum, idx.size());
+<<<<<<< HEAD
+        if (Helper.sum_array(sum) != 1){return this.sample(seed.substring(1),typicality, max_order, false, false, keep_history);}
+=======
+
+        //escape if probability does not sum up to 1
+        if (Helper.sum_array(mean) != 1){return this.sample(seed.substring(1),modularity, max_order, false, false, keep_history);}
+
+        //sampling from distribution
+>>>>>>> 8fb49f8fa6238b4eb0be059352b9100158ce67c5
+        EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(this.alpha_pos, mean);
+        int id = dist.sample();
+        String sample = this.alphabet[id];
+        if(keep_history){this.generated_history += sample;}
+        return sample;
+    }
+
+<<<<<<< HEAD
+    public ArrayList<Pandas> getVMM(){
+        return this.vmm;
+    }
+
+    public ArrayList<Pandas> getCounts(){
+        return this.counts;
+    }
+
+    public String[] getAlphabet(){
+        return this.alphabet;
+    }
+
+    public int getMax_order(){
+        return this.max_depth;
+    }
+
+    public String getSeed(){
+        return this.seed;
+    }
+
+    public void setSeed(String seed){
+        this.seed = seed;
+    }
+
+    public String getGenerated_history(){
+        return this.generated_history;
+    }
+
+    public String getWholeHistory(){
+        return this.seed+this.generated_history;
+    }
+
+    public void clearSeed(){
+        this.seed = "";
+    }
+
+    public void clearGenerate_History(){
+        this.generated_history = "";
+    }
+
+    public void clearWholeHistory(){
+        this.seed = "";
+        this.input_history = "";
+        this.generated_history = "";
+    }
+
+=======
+>>>>>>> 8fb49f8fa6238b4eb0be059352b9100158ce67c5
+
+
+    /**
+     * Updates DataFrame representing VOMM at order depth
+     * @param seq Data to learn from
+     * @param depth VOMM order to update
+     */
+    private void fillPandas(String seq, int depth){
+        int extra_depth = depth +1;
+        for (int i = 0; i <= seq.length() - extra_depth; i++) {
+            String context = seq.substring(i, i + (depth));
+            String symbol = Character.toString(seq.charAt(i + depth));
+            this.counts.get(depth).incrementValue(context, symbol);
+        }
+    }
+
+    /**
+     * Computes Probability Matrix used for sampling
+     */
+    private void compute_prob_mat(){
+        for(Pandas df: this.prob_mats){
+            for(int i = 0; i < df.length(); i++){
+                String context = df.getContext(i);
+                double[] values = df.getValue(context);
+                double sum = Helper.sum_array(values);
+                double[] probability = Helper.divide_array(values, sum);
+                df.setValue(context, probability);
+
+            }
+        }
+    }
+
+    /**
+     * Generates Masks for finding contexts with certain Hamming-distance
+     * @param length length of of context
+     * @param distance Hamming-Distance
+     */
+    private void generate_masks(int length, int distance){
+        Integer[]ones = new Integer[length-distance];
+        Arrays.fill(ones, Integer.MAX_VALUE);
+        Integer []zeros = new Integer[distance];
+        Arrays.fill(zeros, 0);
+        ArrayList<Integer> alphabet = new ArrayList<Integer>();
+        alphabet.addAll(Arrays.asList(ones));
+        alphabet.addAll(Arrays.asList(zeros));
+        permutingArray(alphabet, 0);
+        this.masks = new HashSet<ArrayList<Integer>>(this.permutations);
+
+
+    }
+
+    /**
+     * Used to create all possible masks referring to a set Hamming-Distance
+     * @param arrayList
+     * @param element
+     */
+    private void permutingArray(ArrayList<Integer> arrayList, int element) {
+        for (int i = element; i < arrayList.size(); i++){
+            java.util.Collections.swap(arrayList, i, element);
+            permutingArray(arrayList, element + 1);
+            java.util.Collections.swap(arrayList, element, i);
+        }
+        if (element == arrayList.size() - 1) {
+            ArrayList<Integer> list3 = new ArrayList<Integer>(arrayList);
+            this.permutations.add(list3);
+        }
+    }
+
+    /**
+     * Returns list of indices of the contexts that are similar to a certain context
+     * @param is_similar_to context to compare with
+     * @param contexts list of all possible contexts
+     * @return
+     */
+    private ArrayList<Integer> get_similar(byte[] is_similar_to, List<byte[]> contexts) {
+        ArrayList<Integer> idx = new ArrayList<Integer>();
+        boolean is_similar = false;
+        for(ArrayList<Integer>mask : this.masks){
+            for(int id = 0; id < contexts.size(); id++){
+                byte[] context = contexts.get(id);
+                is_similar = false;
+                for(int i = 0; i < context.length; i++){
+                    if(is_similar){
+                        idx.add(id);
+                        break;
+                    }
+                    is_similar = ((is_similar_to[i] & mask.get(i)) & context[i]) == (is_similar_to[i] & mask.get(i));
+                }
+            }
+        }
+        return idx;
+    }
+
+
+
+    private ArrayList<Pandas> copy(ArrayList<Pandas> src){
+        ArrayList<Pandas> dest = new ArrayList<Pandas>();
+        for(int i = 0; i <= this.max_depth; i++){
+            Pandas df = new Pandas(this.alphabet, i);
+            dest.add(df);
+        }
+        for( Pandas original : src) {
+            for (String context: original.inverse_index_0.values()) {
+                double[] values = Arrays.copyOf(original.getValue(context), this.alphabet.length);
+                dest.get(context.length()).setValue(context, values);
+            }
+        }
+        return dest;
+    }
+
+
+    //Getter and Setter methods
+    public ArrayList<Pandas> getVMM(){
+        return this.prob_mats;
+    }
+
+    public ArrayList<Pandas> getCounts(){
+        return this.counts;
+    }
+
+    public String[] getAlphabet(){
+        return this.alphabet;
+    }
+
+    public int getMax_order(){
+        return this.max_depth;
+    }
+
+    public String getSeed(){
+        return this.seed;
+    }
+
+    public void setSeed(String seed){
+        this.seed = seed;
+    }
+
+    public String getGenerated_history(){
+        return this.generated_history;
+    }
+
+    public String getWholeHistory(){
+        return this.seed+this.generated_history;
+    }
+}

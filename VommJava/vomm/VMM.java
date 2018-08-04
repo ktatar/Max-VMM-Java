@@ -187,7 +187,7 @@ public class VMM implements java.io.Serializable{
         double sum = Helper.sum_array(probabilities);
 
         //If the context did not appear reduce order by 1
-        if (sum != 1){
+        if (!(sum == 1 && this.prob_mats.get(seed.size()).inverse_index_0.values().contains(seed))){
             System.out.println(sum); return this.sample(new ArrayList<String>(seed.subList(1,seed.size())),typicality, max_order);}
         //Sample-method from apache commons
         Double[] Double_array = new Double[probabilities.size()];

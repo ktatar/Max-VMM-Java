@@ -24,15 +24,27 @@ public class VMM implements java.io.Serializable{
     //history of samples
     private ArrayList<String> generated_history = new ArrayList<String>();
     //history of seeds
-    private ArrayList input_history = new ArrayList<String>();
+    private ArrayList<String> input_history = new ArrayList<String>();
     //Typicality used for modulating the probability
     public double typicality = 1.0;
+
+    public VMM(int max_depth){
+        alphabet = new ArrayList<String>();
+        //this.vmm = new ArrayList<Pandas>();
+        this.counts = new ArrayList<Pandas>();
+        this.alpha_pos = new int[alphabet.size()];
+        this.max_depth = max_depth;
+        for (int i = 0; i < alphabet.size(); i++){
+            this.alpha_pos[i] = i;
+        }
+    }
 
     /**
      * Constructor Initializes parameters need for VOMM
      * @param alphabet ArrayList<String> of strings used in the dataset
      * @param max_depth int maximal order of layers in VOMM
      */
+
     public VMM(ArrayList<String> alphabet, int max_depth){
         this.alphabet = alphabet;
         //this.vmm = new ArrayList<Pandas>();
@@ -65,9 +77,9 @@ public class VMM implements java.io.Serializable{
     }
 
 
-    public void update_generated_history(String generated){
+    public void update_generated_history(ArrayList<String> generated){
 
-        generated_history.add(generated);
+        generated_history.addAll(generated);
         if(generated_history.size()> this.max_depth){
             this.generated_history = new ArrayList<String>(this.generated_history.subList(generated_history.size()-max_depth, this.generated_history.size()));
         }
@@ -78,7 +90,7 @@ public class VMM implements java.io.Serializable{
 
         input_history.addAll(input);
         if(input_history.size()> this.max_depth){
-            this.input_history = new ArrayList<String>(this.input_history.subList(input_history.size()-max_depth,input_history.size()));
+            this.input_history = new ArrayList<String>(this.input_history.subList(input_history.size()-max_depth, this.input_history.size()));
         }
     }
 
@@ -138,7 +150,7 @@ public class VMM implements java.io.Serializable{
      * @param typicality value between 1-0 to decide the typicality of the probabilities
      * @return Symbol sampled from the probability distribution following an empty seed
      */
-    public Atom[] sample(double typicality){
+    public Atom[] sampleStart(double typicality){
         ArrayList<Double> probabilities = this.prob_mats.get(0).getValue(new ArrayList<String>());
         probabilities = Helper.modulate(probabilities, typicality);
         Double[] Double_array = new Double[probabilities.size()];
@@ -146,13 +158,12 @@ public class VMM implements java.io.Serializable{
         int i = 0;
         double[] array_probs = new double[Double_array.length];
         for(Double d : Double_array) {
-            array_probs[i] = (double)d;
+            array_probs[i] = d;
             i++;
         }
         EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(this.prob_mats.get(0).alpha_pos, array_probs);
         int idx = dist.sample();
         String sample = this.alphabet.get(idx);
-        update_generated_history(sample);
         Atom[] dumpAtom = new Atom[]{Atom.newAtom(sample),Atom.newAtom(array_probs[idx])};
         return dumpAtom;
     }
@@ -190,7 +201,6 @@ public class VMM implements java.io.Serializable{
         EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(this.prob_mats.get(0).alpha_pos, array_probs);
         int idx = dist.sample();
         String sample = this.alphabet.get(idx);
-        update_generated_history(sample);
         Atom[] dumpAtom = new Atom[]{Atom.newAtom(sample),Atom.newAtom(array_probs[idx])};
         return dumpAtom;
     }
@@ -245,7 +255,7 @@ public class VMM implements java.io.Serializable{
         EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(this.prob_mats.get(0).alpha_pos, array_probs);
         int id = dist.sample();
         String sample = this.alphabet.get(id);
-        update_generated_history(sample);
+        //DO NOT update history here! update_generated_history(sample);
         Atom[] dumpAtom;
         dumpAtom = new Atom[]{Atom.newAtom(sample),Atom.newAtom(array_probs[id])};
         return dumpAtom;

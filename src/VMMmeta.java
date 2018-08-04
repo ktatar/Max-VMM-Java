@@ -1,7 +1,8 @@
 import vomm.VMM;
 
 import com.cycling74.max.*;
-
+import java.util.Arrays;
+import java.util.List;
 import java.util.ArrayList;
 
 public class VMMmeta extends MaxObject {
@@ -59,7 +60,7 @@ public class VMMmeta extends MaxObject {
     //Learn a sequence
     public void learn(Atom[] sequenceIn){
 
-        String learnSequence = Atom.toOneString(sequenceIn);
+        ArrayList<String> learnSequence = new ArrayList<String>(Arrays.asList(Atom.toString(sequenceIn)));
         VMMinst.learn(learnSequence);
         post("learning the sequence " + learnSequence);
     }
@@ -70,7 +71,7 @@ public class VMMmeta extends MaxObject {
             bail("stream_learning expects one symbol at a time. Use learn to train VMM on sequences.");
         }
         else {
-            String stream_symbol = Atom.toOneString(stream_learningIn);
+            ArrayList<String> stream_symbol = new ArrayList<String>(Arrays.asList(Atom.toString(stream_learningIn)));
             VMMinst.update_input_history(stream_symbol);
             VMMinst.learn(VMMinst.getInput_history());
         }
@@ -81,7 +82,8 @@ public class VMMmeta extends MaxObject {
         Atom[] sampleTuple = VMMinst.sample(VMMinst.getGenerated_history(), VMMinst.typicality, this.gen_max_order);
         String generated = sampleTuple[0].getString();
         float prob = sampleTuple[1].getFloat();
-        VMMinst.update_generated_history(generated);
+        ArrayList<String> generatedHistory = new ArrayList<String>(Arrays.asList(generated));
+        VMMinst.update_generated_history(generatedHistory);
         outlet(0, sampleTuple[0]);
         outlet(1, sampleTuple[1]);
     }
@@ -93,7 +95,8 @@ public class VMMmeta extends MaxObject {
         this.generation_started = true;
         Atom[] sampleTuple = VMMinst.sampleStart(VMMinst.typicality);
         String generated = sampleTuple[0].getString();
-        VMMinst.update_generated_history(generated);
+        ArrayList<String> generatedHistory = new ArrayList<String>(Arrays.asList(generated));
+        VMMinst.update_generated_history(generatedHistory);
         post("Generation Started");
         //outlet(info_idx,new Atom[]{Atom.newAtom("genstarted")});
         outlet(0, sampleTuple[0]);
@@ -103,20 +106,25 @@ public class VMMmeta extends MaxObject {
     public void bang(){
         if(!(this.generation_started)) this.genstart();
         else {
+            ArrayList<String> prevGenHistory = VMMinst.getGenerated_history();
+            //post(String.valueOf(prevGenHistory.toArray()));
             Atom[] sampleTuple = VMMinst.sample(VMMinst.getGenerated_history(), VMMinst.typicality, this.gen_max_order);
             String generated = sampleTuple[0].getString();
-            VMMinst.update_generated_history(generated);
+            ArrayList<String> generatedHistory = new ArrayList<String>(Arrays.asList(generated));
+            VMMinst.update_generated_history(generatedHistory);
             outlet(0, sampleTuple[0]);
             outlet(1, sampleTuple[1]);
         }
     }
 
     public void context(Atom[] contextIn){
-        String contextGen = Atom.toOneString(contextIn);
+
+        ArrayList<String> contextGen = new ArrayList<String>(Arrays.asList(Atom.toString(contextIn)));
         VMMinst.update_input_history(contextGen);
         Atom[] sampleTuple = VMMinst.sample(contextGen, VMMinst.typicality, this.gen_max_order);
         String generated = sampleTuple[0].getString();
-        VMMinst.update_generated_history(generated);
+        ArrayList<String> generatedHistory = new ArrayList<String>(Arrays.asList(generated));
+        VMMinst.update_generated_history(generatedHistory);
         outlet(0, sampleTuple[0]);
         outlet(1, sampleTuple[1]);
     }

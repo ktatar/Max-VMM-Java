@@ -14,6 +14,7 @@ public class VMMmeta extends MaxObject {
     int gen_max_order;
     VMM VMMinst;
     int info_idx;
+    boolean fuzzy_sampling;
 
 
     public VMMmeta()
@@ -33,6 +34,7 @@ public class VMMmeta extends MaxObject {
         //Declare outlets
         this.declareOutlets(new int[]{DataTypes.ALL,DataTypes.FLOAT});
         info_idx = getInfoIdx();
+        fuzzy_sampling = false;
     }
 
 /*    public VMMmeta(int orderIn, int alphabetSizeIn)
@@ -148,6 +150,18 @@ public class VMMmeta extends MaxObject {
     public void write(String filePath){
 
         VMMinst.writeVMM(filePath);
+    }
+    public void update_generated_history(Atom[] generated_history_update) {
+            if (generated_history_update.length>max_order) {
+                 post("Update sequence is longer than the max. order "+ max_order +". The sequence is truncated to the max order substring.");
+            }
+            ArrayList<String> update_symbol = new ArrayList<String>(Arrays.asList(Atom.toString(generated_history_update)));
+            VMMinst.update_generated_history(update_symbol);
+        }
+
+    public void update_gen_max_order(int orderIn){
+
+        gen_max_order = orderIn;
     }
     //
     public void setGen_max_order(int max_orderIn){

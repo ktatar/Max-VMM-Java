@@ -164,7 +164,7 @@ public class VMM implements java.io.Serializable{
         if (!(this.prob_mats.get(seed.size()).inverse_index_0.values().contains(seed))){
             return this.sample(new ArrayList<String>(seed.subList(1,seed.size())),typicality, max_order);}
         ArrayList<Double> probabilities = this.prob_mats.get(seed.size()).getValue(seed);
-        probalilities = Helper.modulate(probabilities, typicality);
+        probabilities = Helper.modulate(probabilities, typicality);
         
         double sum = Helper.sum_array(probabilities);
 

@@ -15,6 +15,7 @@ public class VMMmeta extends MaxObject {
     VMM VMMinst;
     int info_idx;
     boolean fuzzy_sampling;
+    boolean anything_learned;
 
 
     public VMMmeta()
@@ -30,6 +31,7 @@ public class VMMmeta extends MaxObject {
         //create the alphabet
         VMMinst = new VMM(max_order);
         post("Created a VMMmeta with max. order "+max_order);
+        anything_learned = false;
 
         //Declare outlets
         this.declareOutlets(new int[]{DataTypes.ALL,DataTypes.FLOAT});
@@ -65,6 +67,7 @@ public class VMMmeta extends MaxObject {
         ArrayList<String> learnSequence = new ArrayList<String>(Arrays.asList(Atom.toString(sequenceIn)));
         VMMinst.learn(learnSequence);
         post("learning the sequence " + learnSequence);
+        anything_learned = true;
     }
 
     //Learn a symbol combined with the input history.
@@ -93,7 +96,7 @@ public class VMMmeta extends MaxObject {
     //Generation Methods
     public void genstart(){
         VMMinst.clearWholeHistory();
-        post("History Cleared");
+        if(anything_learned) bail("VMM is empty.");
         this.generation_started = true;
         Atom[] sampleTuple = VMMinst.sampleStart(VMMinst.typicality);
         String generated = sampleTuple[0].getString();
@@ -122,6 +125,7 @@ public class VMMmeta extends MaxObject {
     public void context(Atom[] contextIn){
 
         ArrayList<String> contextGen = new ArrayList<String>(Arrays.asList(Atom.toString(contextIn)));
+        if(anything_learned) bail("VMM is empty.");
         VMMinst.update_input_history(contextGen);
         Atom[] sampleTuple = VMMinst.sample(contextGen, VMMinst.typicality, this.gen_max_order);
         String generated = sampleTuple[0].getString();
@@ -159,14 +163,10 @@ public class VMMmeta extends MaxObject {
             VMMinst.update_generated_history(update_symbol);
         }
 
-    public void update_gen_max_order(int orderIn){
-
-        gen_max_order = orderIn;
-    }
-    //
     public void setGen_max_order(int max_orderIn){
         if ( max_orderIn <= this.max_order){
             this.gen_max_order = max_orderIn;
+            post("The max. order of generation is set to "+ gen_max_order);
         }
         else bail("Max. order of generation cannot be greater than the maximum VMM order.");
     }
@@ -179,6 +179,16 @@ public class VMMmeta extends MaxObject {
     public void clearHistory(){
         VMMinst.clearWholeHistory();
         this.generation_started = false;
+        post("History cleared");
+    }
+
+    //Resets the VMM, deletes whole history
+    public void clearAll(){
+        VMMinst = new VMM(max_order);
+        generation_started = false;
+        anything_learned = false;
+        post("Created a VMMmeta with max. order "+max_order);
+
     }
 
 }

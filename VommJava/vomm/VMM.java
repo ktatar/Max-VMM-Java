@@ -94,28 +94,7 @@ public class VMM implements java.io.Serializable{
         }
     }
 
-    /**
-     * updates VOMM according to a history and the symbol appearing afterwards
-     *
-     * @param history String of chars appearing before symbol
-     * @param symbol String that appears after history
-     */
-    public void update(ArrayList<String> history, String symbol){
-        int depth = history.size() < this.max_depth? history.size(): this.max_depth;
-        if(depth == 0){
-            this.counts.get(0).incrementValue(history, symbol);
-
-            ArrayList<Double> values = (ArrayList<Double>) this.counts.get(0).getValue(history).clone();
-            int dividend = (int)Helper.sum_array(values);
-            this.prob_mats.get(0).setValue(history, Helper.divide_array(values, dividend));
-        }
-        for (int order = 0; order < depth; order++){
-            ArrayList<String> context = new ArrayList<String>(history.subList(history.size()-order, history.size()));
-            this.counts.get(order).incrementValue(context, symbol);
-            int dividend= (int)Helper.sum_array(this.counts.get(order).getValue(context));
-            this.prob_mats.get(order).setValue(context, Helper.divide_array(this.counts.get(order).getValue(context), dividend));
-        }
-    }
+    
     /**
      * Clears stored history of last samples (generate_history)
      */
@@ -151,7 +130,7 @@ public class VMM implements java.io.Serializable{
      */
     public Atom[] sampleStart(double typicality){
         ArrayList<Double> probabilities = this.prob_mats.get(0).getValue(new ArrayList<String>());
-        probabilities = Helper.modulate(probabilities, typicality);
+        probabilities = Helper.modulate(probabilities, typicality); //prints whole matrix before reducing order
         Double[] Double_array = new Double[probabilities.size()];
         Double_array = probabilities.toArray(Double_array);
         int i = 0;
@@ -182,7 +161,7 @@ public class VMM implements java.io.Serializable{
         if(seed.size() > max_order){seed = new ArrayList<String>(seed.subList(seed.size()-max_order,seed.size()));}
 
         ArrayList<Double> probabilities = this.prob_mats.get(seed.size()).getValue(seed);
-        probabilities = Helper.modulate(probabilities, typicality);
+        probabilities = Helper.modulate(probabilities, typicality); //prints whole matrix before reducing order
         double sum = Helper.sum_array(probabilities);
 
         //If the context did not appear reduce order by 1
@@ -230,7 +209,7 @@ public class VMM implements java.io.Serializable{
         ArrayList<Double> sum = new ArrayList<Double>(Collections.nCopies(df.alphabet.size(), 0.0));
         for(int id: idx){
             ArrayList<Double> probabilities = df.getValue(df.inverse_index_0.get(id));
-            probabilities = Helper.modulate(probabilities, typicality);
+            probabilities = Helper.modulate(probabilities, typicality); //prints whole matrix before reducing order
             for(int i = 0; i < probabilities.size(); i++){
                 Double value = sum.get(i);
                 sum.set(i, value + probabilities.get(i));

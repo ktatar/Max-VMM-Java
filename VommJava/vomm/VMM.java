@@ -111,7 +111,6 @@ public class VMM implements java.io.Serializable{
         }
         for (int order = 0; order < depth; order++){
             ArrayList<String> context = new ArrayList<String>(history.subList(history.size()-order, history.size()));
-            System.out.println("in");
             this.counts.get(order).incrementValue(context, symbol);
             int dividend= (int)Helper.sum_array(this.counts.get(order).getValue(context));
             this.prob_mats.get(order).setValue(context, Helper.divide_array(this.counts.get(order).getValue(context), dividend));
@@ -188,7 +187,7 @@ public class VMM implements java.io.Serializable{
 
         //If the context did not appear reduce order by 1
         if (!(sum == 1 && this.prob_mats.get(seed.size()).inverse_index_0.values().contains(seed))){
-            System.out.println(sum); return this.sample(new ArrayList<String>(seed.subList(1,seed.size())),typicality, max_order);}
+            return this.sample(new ArrayList<String>(seed.subList(1,seed.size())),typicality, max_order);}
         //Sample-method from apache commons
         Double[] Double_array = new Double[probabilities.size()];
         Double_array = probabilities.toArray(Double_array);

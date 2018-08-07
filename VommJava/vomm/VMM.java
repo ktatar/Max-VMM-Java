@@ -159,13 +159,15 @@ public class VMM implements java.io.Serializable{
         if (max_order > this.prob_mats.size()){throw new RuntimeException("Context too long");}
         if(max_order < 0){throw new RuntimeException("Negative order impossible");}
         if(seed.size() > max_order){seed = new ArrayList<String>(seed.subList(seed.size()-max_order,seed.size()));}
-
+        
+        if (!(this.prob_mats.get(seed.size()).inverse_index_0.values().contains(seed))){
+            return this.sample(new ArrayList<String>(seed.subList(1,seed.size())),typicality, max_order);}
         ArrayList<Double> probabilities = this.prob_mats.get(seed.size()).getValue(seed);
         probabilities = Helper.modulate(probabilities, typicality); //prints whole matrix before reducing order
         double sum = Helper.sum_array(probabilities);
 
         //If the context did not appear reduce order by 1
-        if (!(sum == 1 && this.prob_mats.get(seed.size()).inverse_index_0.values().contains(seed))){
+        if (!(sum == 1)){
             return this.sample(new ArrayList<String>(seed.subList(1,seed.size())),typicality, max_order);}
         //Sample-method from apache commons
         Double[] Double_array = new Double[probabilities.size()];

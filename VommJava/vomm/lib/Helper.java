@@ -19,7 +19,7 @@ public class Helper {
             input.set(i, (value*prob) + (1-value)*(1-prob-mean));
         }
         divide_array(input, sum_array(input));
-        System.out.println(input.toString());
+        //System.out.println(input.toString());
         return input;
     }
 

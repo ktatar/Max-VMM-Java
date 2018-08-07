@@ -1,6 +1,7 @@
 package lib;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Helper {
 
@@ -28,5 +29,14 @@ public class Helper {
             sum += value;
         }
         return sum;
+    }
+
+    public static ArrayList<Double> round(ArrayList<Double> probabilities, double sum) {
+
+        Random rand = new Random();
+        int id = rand.nextInt(probabilities.size());
+        double reduce_by = 1.0- sum;
+        probabilities.set(id, probabilities.get(id)+reduce_by);
+        return probabilities;
     }
 }

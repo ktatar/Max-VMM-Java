@@ -130,7 +130,8 @@ public class VMM implements java.io.Serializable{
      */
     public Atom[] sampleStart(double typicality){
         ArrayList<Double> probabilities = this.prob_mats.get(0).getValue(new ArrayList<String>());
-        probabilities = Helper.modulate(probabilities, typicality); //prints whole matrix before reducing order
+        probabilities = Helper.modulate(probabilities, typicality);
+        System.out.println(probabilities.toString()); //prints whole matrix
         Double[] Double_array = new Double[probabilities.size()];
         Double_array = probabilities.toArray(Double_array);
         int i = 0;
@@ -163,12 +164,14 @@ public class VMM implements java.io.Serializable{
         if (!(this.prob_mats.get(seed.size()).inverse_index_0.values().contains(seed))){
             return this.sample(new ArrayList<String>(seed.subList(1,seed.size())),typicality, max_order);}
         ArrayList<Double> probabilities = this.prob_mats.get(seed.size()).getValue(seed);
-        probabilities = Helper.modulate(probabilities, typicality); //prints whole matrix before reducing order
+        probalilities = Helper.modulate(probabilities, typicality);
+        
         double sum = Helper.sum_array(probabilities);
 
         //If the context did not appear reduce order by 1
         if (!(sum == 1)){
             return this.sample(new ArrayList<String>(seed.subList(1,seed.size())),typicality, max_order);}
+        System.out.println(probabilities.toString()); //prints whole matrix
         //Sample-method from apache commons
         Double[] Double_array = new Double[probabilities.size()];
         Double_array = probabilities.toArray(Double_array);
@@ -211,7 +214,7 @@ public class VMM implements java.io.Serializable{
         ArrayList<Double> sum = new ArrayList<Double>(Collections.nCopies(df.alphabet.size(), 0.0));
         for(int id: idx){
             ArrayList<Double> probabilities = df.getValue(df.inverse_index_0.get(id));
-            probabilities = Helper.modulate(probabilities, typicality); //prints whole matrix before reducing order
+            probabilities = Helper.modulate(probabilities, typicality);
             for(int i = 0; i < probabilities.size(); i++){
                 Double value = sum.get(i);
                 sum.set(i, value + probabilities.get(i));
@@ -224,6 +227,7 @@ public class VMM implements java.io.Serializable{
         if (Helper.sum_array(mean) != 1){return this.sample(new ArrayList<String>(seed.subList(1, seed.size())),typicality, max_order);}
 
         //sampling from distribution
+        System.out.println(mean.toString()); //prints whole matrix
         Double[] Double_array = new Double[mean.size()];
         Double_array = mean.toArray(Double_array);
         int i = 0;

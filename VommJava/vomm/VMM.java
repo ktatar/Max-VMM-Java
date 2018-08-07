@@ -6,28 +6,50 @@ import org.apache.commons.math3.distribution.*;
 import java.io.*;
 import java.util.*;
 
-
+/**
+ * The VMM class implements Variable Order Markov Models
+ */
 public class VMM implements java.io.Serializable{
 
 
-    // Transfer-Matrix of VOMM
+    /**
+     * The {@link ArrayList} of {@link Pandas} that contain the probabilities of the symbols in the alphabet appearing after all contexts, each index represents the order
+     */
     private ArrayList<Pandas> prob_mats;
-    // Counts of Symbol given Contexts
+    /**
+     * The {@link ArrayList} of {@link Pandas} that contain the times of the symbols in the alphabet appearing after all contexts, each index represents the order
+     */
     private ArrayList<Pandas> counts;
-    //Initial alphabet may not be correct if new symbols are added
+    /**
+     * The {@link ArrayList} of {@link String} is the alphabet that is used in the VMM
+     */
     private ArrayList<String> alphabet;
-    //String[]alphabet transformed to their index in VOMM
+    /**
+     * The int[] contains the int used in the Pandas for a String in the alphabet
+     */
     private int[] alpha_pos;
-    // Maximal order of VOMM
+    /**
+     *The int is the maximal order that is represented by the VMM
+     */
     private int max_depth;
 
-    //history of samples
+    /**
+     * The {@link ArrayList} of {@link String} is the history of sampled Strings
+     */
     private ArrayList<String> generated_history = new ArrayList<String>();
-    //history of seeds
+    /**
+     * The {@link ArrayList} of {@link String} is the stored seed for the sampling methods
+     */
     private ArrayList<String> input_history = new ArrayList<String>();
-    //Typicality used for modulating the probability
+    /**
+     * Typicality used for modulating the probability (double between 1 and 0)
+     */
     public double typicality = 1.0;
 
+    /**
+     * Constructor Initializes parameters needed for VOMM
+     * @param max_depth int maximal order of layers in VOMM
+     */
     public VMM(int max_depth){
         alphabet = new ArrayList<String>();
         //this.vmm = new ArrayList<Pandas>();
@@ -40,14 +62,13 @@ public class VMM implements java.io.Serializable{
     }
 
     /**
-     * Constructor Initializes parameters need for VOMM
-     * @param alphabet ArrayList<String> of strings used in the dataset
+     * Constructor Initializes parameters needed for VOMM
+     * @param alphabet {@link ArrayList<String>} alphabet used in the dataset
      * @param max_depth int maximal order of layers in VOMM
      */
 
     public VMM(ArrayList<String> alphabet, int max_depth){
         this.alphabet = alphabet;
-        //this.vmm = new ArrayList<Pandas>();
         this.counts = new ArrayList<Pandas>();
         this.alpha_pos = new int[alphabet.size()];
         this.max_depth = max_depth;
@@ -59,7 +80,7 @@ public class VMM implements java.io.Serializable{
     /**
      *
      * Generates VOMM from Dataset of sequences
-     * @param sequence Dataset of sequences to learn from
+     * @param sequence {@link ArrayList<String>} sequence to learn the probabilities o
      */
     public void learn(ArrayList<String> sequence){
         int level = 0;
@@ -156,7 +177,7 @@ public class VMM implements java.io.Serializable{
      */
 
     public Atom[] sample(ArrayList<String> seed, double typicality, int max_order){
-        if (max_order > this.prob_mats.size()){throw new RuntimeException("Context too long");}
+        if (max_order > this.prob_mats.size()){throw new RuntimeException("Order too big");}
         if(max_order < 0){throw new RuntimeException("Negative order impossible");}
         if(seed.size() > max_order){seed = new ArrayList<String>(seed.subList(seed.size()-max_order,seed.size()));}
         
@@ -168,8 +189,12 @@ public class VMM implements java.io.Serializable{
         double sum = Helper.sum_array(probabilities);
 
         //If the context did not appear reduce order by 1
-        if (!(sum == 1)){
-            return this.sample(new ArrayList<String>(seed.subList(1,seed.size())),typicality, max_order);}
+        if (sum != 1) {
+            if (sum <= 0.99) {
+                return this.sample(new ArrayList<String>(seed.subList(1, seed.size())), typicality, max_order);
+            }
+            probabilities = Helper.round(probabilities, sum);
+        }
         //Sample-method from apache commons
         Double[] Double_array = new Double[probabilities.size()];
         Double_array = probabilities.toArray(Double_array);

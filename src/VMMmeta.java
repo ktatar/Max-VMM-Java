@@ -96,7 +96,7 @@ public class VMMmeta extends MaxObject {
     //Generation Methods
     public void genstart(){
         VMMinst.clearWholeHistory();
-        if(anything_learned) bail("VMM is empty.");
+        if(!anything_learned) bail("VMM is empty.");
         this.generation_started = true;
         Atom[] sampleTuple = VMMinst.sampleStart(VMMinst.typicality);
         String generated = sampleTuple[0].getString();
@@ -113,6 +113,7 @@ public class VMMmeta extends MaxObject {
         else {
             ArrayList<String> prevGenHistory = VMMinst.getGenerated_history();
             //post(String.valueOf(prevGenHistory.toArray()));
+            post(VMMinst.getGenerated_history().toString());
             Atom[] sampleTuple = VMMinst.sample(VMMinst.getGenerated_history(), VMMinst.typicality, this.gen_max_order);
             String generated = sampleTuple[0].getString();
             ArrayList<String> generatedHistory = new ArrayList<String>(Arrays.asList(generated));
@@ -125,7 +126,7 @@ public class VMMmeta extends MaxObject {
     public void context(Atom[] contextIn){
 
         ArrayList<String> contextGen = new ArrayList<String>(Arrays.asList(Atom.toString(contextIn)));
-        if(anything_learned) bail("VMM is empty.");
+        if(!anything_learned) bail("VMM is empty.");
         VMMinst.update_input_history(contextGen);
         Atom[] sampleTuple = VMMinst.sample(contextGen, VMMinst.typicality, this.gen_max_order);
         String generated = sampleTuple[0].getString();

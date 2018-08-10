@@ -243,12 +243,21 @@ public class VMM implements java.io.Serializable{
                 sum.set(i, value + probabilities.get(i));
             }
         }
+        
         //getting mean probability
         ArrayList<Double> mean = Helper.divide_array(sum, idx.size());
 
         //escape if probability does not sum up to 1
-        if (Helper.sum_array(mean) != 1){return this.sample(new ArrayList<String>(seed.subList(1, seed.size())),typicality, max_order);}
-
+        
+        double sum= Helper.sum_array(mean)
+        
+        if (sum != 1){
+            if (sum <= 0.99) {
+                 return this.sample(new ArrayList<String>(seed.subList(1, seed.size())),typicality, max_order);
+            }
+            mean = Helper.round(mean, sum);
+            }
+           
         //sampling from distribution
         Double[] Double_array = new Double[mean.size()];
         Double_array = mean.toArray(Double_array);

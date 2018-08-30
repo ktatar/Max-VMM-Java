@@ -1,4 +1,4 @@
-package vomm.lib;
+package lib;
 
 /**
  * The Pandas program implements the functions I need from the python pandas library

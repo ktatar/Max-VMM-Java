@@ -1,4 +1,4 @@
-package vomm.lib;
+package lib;
 
 import java.util.ArrayList;
 import java.util.Random;

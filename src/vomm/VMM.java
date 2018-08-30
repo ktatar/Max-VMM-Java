@@ -143,12 +143,7 @@ public class VMM implements java.io.Serializable{
         return this.prob_mats.get(context.size()).getValue(context, symbol);
     }
 
-    /**
-     * Samples Symbol from probabilities of Symbols appearing after empty sequence
-     * @param typicality value between 1-0 to decide the typicality of the probabilities
-     * @return Symbol sampled from the probability distribution following an empty seed
-     */
-    public Atom[] sample(double typicality){
+    public Atom[] sampleStart(double typicality){
         ArrayList<Double> probabilities = this.prob_mats.get(0).getValue(new ArrayList<String>());
         probabilities = Helper.modulate(probabilities, typicality);
         Double[] Double_array = new Double[probabilities.size()];
@@ -156,13 +151,12 @@ public class VMM implements java.io.Serializable{
         int i = 0;
         double[] array_probs = new double[Double_array.length];
         for(Double d : Double_array) {
-            array_probs[i] = (double)d;
+            array_probs[i] = d;
             i++;
         }
         EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(this.prob_mats.get(0).alpha_pos, array_probs);
         int idx = dist.sample();
         String sample = this.alphabet.get(idx);
-        update_generated_history(sample);
         Atom[] dumpAtom = new Atom[]{Atom.newAtom(sample),Atom.newAtom(array_probs[idx])};
         return dumpAtom;
     }
@@ -177,17 +171,24 @@ public class VMM implements java.io.Serializable{
      */
 
     public Atom[] sample(ArrayList<String> seed, double typicality, int max_order){
-        if (max_order > this.prob_mats.size()){throw new RuntimeException("Context too long");}
+        if (max_order > this.prob_mats.size()){throw new RuntimeException("Order too big");}
         if(max_order < 0){throw new RuntimeException("Negative order impossible");}
         if(seed.size() > max_order){seed = new ArrayList<String>(seed.subList(seed.size()-max_order,seed.size()));}
 
+        if (!(this.prob_mats.get(seed.size()).inverse_index_0.values().contains(seed))){
+            return this.sample(new ArrayList<String>(seed.subList(1,seed.size())),typicality, max_order);}
         ArrayList<Double> probabilities = this.prob_mats.get(seed.size()).getValue(seed);
         probabilities = Helper.modulate(probabilities, typicality);
+
         double sum = Helper.sumList(probabilities);
 
         //If the context did not appear reduce order by 1
-        if (sum != 1){
-            System.out.println(sum); return this.sample(new ArrayList<String>(seed.subList(1,seed.size())),typicality, max_order);}
+        if (sum != 1) {
+            if (sum <= 0.99) {
+                return this.sample(new ArrayList<String>(seed.subList(1, seed.size())), typicality, max_order);
+            }
+            probabilities = Helper.round(probabilities, sum);
+        }
         //Sample-method from apache commons
         Double[] Double_array = new Double[probabilities.size()];
         Double_array = probabilities.toArray(Double_array);
@@ -197,10 +198,11 @@ public class VMM implements java.io.Serializable{
             array_probs[i] = (double)d;
             i++;
         }
+        System.out.println(String.valueOf(this.prob_mats.get(0).alpha_pos.length));
+        System.out.println(String.valueOf(array_probs.length));
         EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(this.prob_mats.get(0).alpha_pos, array_probs);
         int idx = dist.sample();
         String sample = this.alphabet.get(idx);
-        update_generated_history(sample);
         Atom[] dumpAtom = new Atom[]{Atom.newAtom(sample),Atom.newAtom(array_probs[idx])};
         return dumpAtom;
     }
@@ -237,11 +239,20 @@ public class VMM implements java.io.Serializable{
                 sum.set(i, value + probabilities.get(i));
             }
         }
+
         //getting mean probability
         ArrayList<Double> mean = Helper.divide_array(sum, idx.size());
 
         //escape if probability does not sum up to 1
-        if (Helper.sumList(mean) != 1){return this.sample(new ArrayList<String>(seed.subList(1, seed.size())),typicality, max_order);}
+
+        double sum_single = Helper.sumList(mean);
+
+        if (sum_single != 1){
+            if (sum_single <= 0.99) {
+                return this.sample(new ArrayList<String>(seed.subList(1, seed.size())),typicality, max_order);
+            }
+            mean = Helper.round(mean, sum_single);
+        }
 
         //sampling from distribution
         Double[] Double_array = new Double[mean.size()];
@@ -255,7 +266,7 @@ public class VMM implements java.io.Serializable{
         EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(this.prob_mats.get(0).alpha_pos, array_probs);
         int id = dist.sample();
         String sample = this.alphabet.get(id);
-        update_generated_history(sample);
+        //DO NOT update history here! update_generated_history(sample);
         Atom[] dumpAtom;
         dumpAtom = new Atom[]{Atom.newAtom(sample),Atom.newAtom(array_probs[id])};
         return dumpAtom;

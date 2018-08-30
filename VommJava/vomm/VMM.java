@@ -75,7 +75,9 @@ public class VMM implements java.io.Serializable{
      */
     public void learn(ArrayList<String> sequence){
         int level = 0;
+        //Cleaning Sequence
         sequence.removeAll(Arrays.asList("",null));
+        //Adding and Filling Pandas to VMM (List) until we can describe the wanted orders
         while((level <= this.max_depth)) {
             Pandas df = new Pandas(this.alphabet, level);
             this.counts.add(df);
@@ -84,6 +86,7 @@ public class VMM implements java.io.Serializable{
             }
             level++;
         }
+        //Creating Transition Matrix
         this.prob_mats = this.copy(this.counts);
         this.compute_prob_mat();
     }
@@ -131,7 +134,9 @@ public class VMM implements java.io.Serializable{
      * @return probability P(symbol|context)
      */
     public double predict(ArrayList<String> context, String symbol){
+        //Escape if probability is 0
         if (this.prob_mats.get(context.size()).getValue(context, symbol) == 0){return this.predict(new ArrayList<String>(context.subList(1, context.size())),symbol);}
+
         return this.prob_mats.get(context.size()).getValue(context, symbol);
     }
 
@@ -142,7 +147,10 @@ public class VMM implements java.io.Serializable{
      */
     public Atom[] sampleStart(double typicality){
         ArrayList<Double> probabilities = this.prob_mats.get(0).getValue(new ArrayList<String>());
+        //Shifting the distribution according to the wanted typicality
         probabilities = Helper.modulate(probabilities, typicality);
+
+        //Converting Double --> double for EnumeratedIntegerDistribution
         Double[] Double_array = new Double[probabilities.size()];
         Double_array = probabilities.toArray(Double_array);
         int i = 0;
@@ -151,7 +159,20 @@ public class VMM implements java.io.Serializable{
             array_probs[i] = d;
             i++;
         }
-        EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(this.prob_mats.get(0).alpha_pos, array_probs);
+
+        //Sampling
+
+        //Getting the positions of the Strings in the alphabet
+        ArrayList<Integer> POS= new ArrayList<Integer>(this.prob_mats.get(0).index_1.values());
+        Integer[] POS_array = new Integer[POS.size()];
+        POS_array = POS.toArray(POS_array);
+        int j = 0;
+        int[] pos = new int[POS_array.length];
+        for(Integer d : POS_array) {
+            pos[j] = d;
+            j++;
+        }
+        EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(pos, array_probs);
         int idx = dist.sample();
         String sample = this.alphabet.get(idx);
         Atom[] dumpAtom = new Atom[]{Atom.newAtom(sample),Atom.newAtom(array_probs[idx])};
@@ -175,9 +196,11 @@ public class VMM implements java.io.Serializable{
         if (!(this.prob_mats.get(seed.size()).inverse_index_0.values().contains(seed))){
             return this.sample(new ArrayList<String>(seed.subList(1,seed.size())),typicality, max_order);}
         ArrayList<Double> probabilities = this.prob_mats.get(seed.size()).getValue(seed);
+
+        //Shifting the distribution according to the wanted typicality
         probabilities = Helper.modulate(probabilities, typicality);
 
-        double sum = Helper.sum_array(probabilities);
+        double sum = Helper.sumList(probabilities);
 
         //If the context did not appear reduce order by 1
         if (sum != 1) {
@@ -186,7 +209,8 @@ public class VMM implements java.io.Serializable{
             }
             probabilities = Helper.round(probabilities, sum);
         }
-        //Sample-method from apache commons
+
+        //Converting Double --> double for EnumeratedIntegerDistribution
         Double[] Double_array = new Double[probabilities.size()];
         Double_array = probabilities.toArray(Double_array);
         int i = 0;
@@ -195,9 +219,21 @@ public class VMM implements java.io.Serializable{
             array_probs[i] = (double)d;
             i++;
         }
-        System.out.println(String.valueOf(this.prob_mats.get(0).alpha_pos.length));
-        System.out.println(String.valueOf(array_probs.length));
-        EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(this.prob_mats.get(0).alpha_pos, array_probs);
+
+        //Sample-method from apache commons
+        //Sampling
+
+        //Getting the positions of the Strings in the alphabet
+        ArrayList<Integer> POS= new ArrayList<Integer>(this.prob_mats.get(0).index_1.values());
+        Integer[] POS_array = new Integer[POS.size()];
+        POS_array = POS.toArray(POS_array);
+        int j = 0;
+        int[] pos = new int[POS_array.length];
+        for(Integer d : POS_array) {
+            pos[j] = d;
+            j++;
+        }
+        EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(pos, array_probs);
         int idx = dist.sample();
         String sample = this.alphabet.get(idx);
         Atom[] dumpAtom = new Atom[]{Atom.newAtom(sample),Atom.newAtom(array_probs[idx])};
@@ -225,7 +261,8 @@ public class VMM implements java.io.Serializable{
         //If context not appeared escape to order -1
         if(!contexts.contains(seed)){return sample(new ArrayList<String>(seed.subList(1,seed.size())),typicality, max_order);}
 
-        //Get Contexts similar to input context by filtering with masks (ln.170) and get mean-probability
+        //Get Contexts similar to input context by finding which contexts only differ by a set amount of elements
+        // shift the distribution and get mean-probability
         idx = get_similar(seed,contexts,distance );
         ArrayList<Double> sum = new ArrayList<Double>(Collections.nCopies(df.alphabet.size(), 0.0));
         for(int id: idx){
@@ -241,9 +278,7 @@ public class VMM implements java.io.Serializable{
         ArrayList<Double> mean = Helper.divide_array(sum, idx.size());
 
         //escape if probability does not sum up to 1
-
-        double sum_single = Helper.sum_array(mean);
-
+        double sum_single = Helper.sumList(mean);
         if (sum_single != 1){
             if (sum_single <= 0.99) {
                 return this.sample(new ArrayList<String>(seed.subList(1, seed.size())),typicality, max_order);
@@ -251,7 +286,7 @@ public class VMM implements java.io.Serializable{
             mean = Helper.round(mean, sum_single);
         }
 
-        //sampling from distribution
+        //Converting Double --> double for EnumeratedIntegerDistribution
         Double[] Double_array = new Double[mean.size()];
         Double_array = mean.toArray(Double_array);
         int i = 0;
@@ -260,7 +295,19 @@ public class VMM implements java.io.Serializable{
             array_probs[i] = (double)d;
             i++;
         }
-        EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(this.prob_mats.get(0).alpha_pos, array_probs);
+
+        //Sample-method from apache commons
+        //Getting the positions of the Strings in the alphabet
+        ArrayList<Integer> POS= new ArrayList<Integer>(this.prob_mats.get(0).index_1.values());
+        Integer[] POS_array = new Integer[POS.size()];
+        POS_array = POS.toArray(POS_array);
+        int j = 0;
+        int[] pos = new int[POS_array.length];
+        for(Integer d : POS_array) {
+            pos[j] = d;
+            j++;
+        }
+        EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(pos, array_probs);
         int id = dist.sample();
         String sample = this.alphabet.get(id);
         //DO NOT update history here! update_generated_history(sample);
@@ -276,26 +323,29 @@ public class VMM implements java.io.Serializable{
      * @param depth VOMM order to update
      */
     private void fillPandas(ArrayList<String> seq, int depth){
+
+        //get all the substrings with length order+1, chop of last char ==> Context|Symbol pair
         int extra_depth = depth +1;
         for (int i = 0; i <= seq.size() - extra_depth; i++) {
             ArrayList<String> context = new ArrayList<String>(seq.subList(i, i + (depth)));
             String symbol = seq.get(i + depth);
             this.counts.get(depth).incrementValue(context, symbol);
         }
-        System.out.println("filling" + this.alphabet);
+        //update alphabet, since new Strings could have appeared
         this.alphabet = this.counts.get(depth).alphabet;
-        System.out.println("set" + this.alphabet);
     }
 
     /**
      * Computes Probability Matrix used for sampling
      */
     private void compute_prob_mat(){
+
+        //Iterating over contexts and calculating the distribution
         for(Pandas df: this.prob_mats){
             for(int i = 0; i < df.length(); i++){
                 ArrayList<String> context = df.getContext(i);
                 ArrayList<Double> values = df.getValue(context);
-                double sum = Helper.sum_array(values);
+                double sum = Helper.sumList(values);
                 ArrayList<Double> probability = Helper.divide_array(values, sum);
                 df.setValue(context, probability);
 
@@ -313,6 +363,8 @@ public class VMM implements java.io.Serializable{
      */
     private ArrayList<Integer> get_similar(ArrayList<String> seed, ArrayList<ArrayList<String >> contexts, int distance) {
         ArrayList<Integer> idx = new ArrayList<Integer>();
+
+        //Iterate over List of context and remove all Symbols
         for(int i = 0; i < contexts.size(); i++){
             contexts.get(i).removeAll(seed);
             if(contexts.get(i).size()== distance){

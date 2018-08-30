@@ -1,4 +1,4 @@
-package vomm.lib;
+package lib;
 
 /**
  * The Pandas program implements the functions I need from the python pandas library
@@ -34,17 +34,24 @@ public class Pandas implements java.io.Serializable {
      * @param depth    Order of Vomm
      */
     public Pandas(ArrayList<String> alphabet, int depth) {
-
+        //Initializing all the parameters
         index_0 = new HashMap();
         index_1 = new LinkedHashMap<String, Integer>();
         inverse_index_0 = new HashMap();
         this.depth = depth;
         this.alphabet = alphabet;
+
+        //Filling the Hashmap with the Column index for th Strings in the alphabet
         for (int i = 0; i < alphabet.size(); i++) {
             this.index_1.put(alphabet.get(i), i);
         }
     }
 
+
+    /**
+     * Copy Constructor used only to create a deep copy of the Pandas
+     * @param src Pandas instance to deep copy
+     */
     public Pandas(Pandas src) {
         index_0 = (HashMap<ArrayList<String>, Integer>) src.index_0.clone();
         index_1 = (LinkedHashMap<String, Integer>) src.index_1.clone();
@@ -80,11 +87,14 @@ public class Pandas implements java.io.Serializable {
      * @param context String to be added (Row-Name)
      */
     public void addContext(ArrayList<String> context) {
-        if (context.size() > depth) {
+        // We check if the context can be added as only contexts with the length of the order are allowed to be stored
+        if (context.size() > this.depth) {
             throw new RuntimeException("Context is to long!");
         }
+        //Give the context its reference in the Panda
         this.index_0.put(context, df.size());
         this.inverse_index_0.put(df.size(), context);
+        //Adding it to our nested list/ Panda
         ArrayList<Double> context_list = new ArrayList<Double>(Collections.nCopies(this.alphabet.size(), 0.0));
         df.add(context_list);
     }
@@ -114,12 +124,16 @@ public class Pandas implements java.io.Serializable {
     public void setValue(ArrayList<String> context, String symbol, double value) {
 
         if (this.index_0.containsKey(context)) {
-            df.get(this.index_0.get(context)).set(this.index_1.get(symbol), value);
+
+            //If symbol isn't in our alphabet, we will add it to the alphabet and update the Panda with an extra column
             if (!this.index_1.containsKey(symbol)) {
                 this.index_1.put(symbol, this.index_1.size());
                 this.alphabet = new ArrayList<String>(this.index_1.keySet());
                 df.get(this.index_0.get(context)).add(0.0);
             }
+
+            //Setting Value
+            df.get(this.index_0.get(context)).set(this.index_1.get(symbol), value);
         } else {
             this.addContext(context);
             this.setValue(context, symbol, value);
@@ -135,13 +149,15 @@ public class Pandas implements java.io.Serializable {
     public void incrementValue(ArrayList<String > context, String symbol) {
 
         if (this.index_0.containsKey(context)) {
+            //If symbol isn't in our alphabet, we will add it to the alphabet and update the Panda with an extra column
             if (!this.index_1.containsKey(symbol)) {
-                //System.out.println("Symbol not in alphabet");
                 this.index_1.put(symbol, this.index_1.size());
                 this.alphabet = new ArrayList<String>(this.index_1.keySet());
                 df.get(this.index_0.get(context)).add(0.0);
 
             }
+
+            //Incrementing
             df.get(this.index_0.get(context)).set(this.index_1.get(symbol), df.get(this.index_0.get(context)).get(this.index_1.get(symbol)) + 1);
         } else {
             this.addContext(context);

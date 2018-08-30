@@ -53,7 +53,8 @@ public class VMM implements java.io.Serializable{
         this.counts = new ArrayList<Pandas>();
         this.max_depth = max_depth;
 
-    }
+        }
+
 
     /**
      * Constructor Initializes parameters needed for VOMM
@@ -142,7 +143,123 @@ public class VMM implements java.io.Serializable{
         return this.prob_mats.get(context.size()).getValue(context, symbol);
     }
 
+    /**
+     * Samples Symbol from probabilities of Symbols appearing after empty sequence
+     * @param typicality value between 1-0 to decide the typicality of the probabilities
+     * @return Symbol sampled from the probability distribution following an empty seed
+     */
+    public Atom[] sample(double typicality){
+        ArrayList<Double> probabilities = this.prob_mats.get(0).getValue(new ArrayList<String>());
+        probabilities = Helper.modulate(probabilities, typicality);
+        Double[] Double_array = new Double[probabilities.size()];
+        Double_array = probabilities.toArray(Double_array);
+        int i = 0;
+        double[] array_probs = new double[Double_array.length];
+        for(Double d : Double_array) {
+            array_probs[i] = (double)d;
+            i++;
+        }
+        EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(this.prob_mats.get(0).alpha_pos, array_probs);
+        int idx = dist.sample();
+        String sample = this.alphabet.get(idx);
+        update_generated_history(sample);
+        Atom[] dumpAtom = new Atom[]{Atom.newAtom(sample),Atom.newAtom(array_probs[idx])};
+        return dumpAtom;
+    }
 
+    /**
+     * Returns one character sampling from probabilities of Symbols appearing after context
+     *
+     * @param seed Seed used to sample next symbol
+     * @param typicality value between 1-0 to decide the typicality of the probabilities
+     * @param max_order int Maximal order of VOMM that should be used
+     * @return Sampled Symbol
+     */
+
+    public Atom[] sample(ArrayList<String> seed, double typicality, int max_order){
+        if (max_order > this.prob_mats.size()){throw new RuntimeException("Context too long");}
+        if(max_order < 0){throw new RuntimeException("Negative order impossible");}
+        if(seed.size() > max_order){seed = new ArrayList<String>(seed.subList(seed.size()-max_order,seed.size()));}
+
+        ArrayList<Double> probabilities = this.prob_mats.get(seed.size()).getValue(seed);
+        probabilities = Helper.modulate(probabilities, typicality);
+        double sum = Helper.sumList(probabilities);
+
+        //If the context did not appear reduce order by 1
+        if (sum != 1){
+            System.out.println(sum); return this.sample(new ArrayList<String>(seed.subList(1,seed.size())),typicality, max_order);}
+        //Sample-method from apache commons
+        Double[] Double_array = new Double[probabilities.size()];
+        Double_array = probabilities.toArray(Double_array);
+        int i = 0;
+        double[] array_probs = new double[Double_array.length];
+        for(Double d : Double_array) {
+            array_probs[i] = (double)d;
+            i++;
+        }
+        EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(this.prob_mats.get(0).alpha_pos, array_probs);
+        int idx = dist.sample();
+        String sample = this.alphabet.get(idx);
+        update_generated_history(sample);
+        Atom[] dumpAtom = new Atom[]{Atom.newAtom(sample),Atom.newAtom(array_probs[idx])};
+        return dumpAtom;
+    }
+
+    /**
+     * Sampling Symbol from the mean probability distribution described by similar contexts to input(Similarity-Measure = Hamming-Distance)
+     * @param seed String context to get the similar contexts of     *
+     * @param distance Sets the amount of Hamming-distance
+     * @param typicality value between 1-0 to decide the typicality of the probabilities
+     * @return Sampled symbol
+     */
+    public Atom[] sample_fuzzy(ArrayList<String> seed, int distance, double typicality, int max_order){
+        // Getting rid of unwanted cases
+        if (max_order > this.prob_mats.size())throw new RuntimeException("Context too long");
+        if(max_order < 0)throw new RuntimeException("Negative order impossible");
+        if(distance > seed.size() || distance < 0)throw new RuntimeException("Illegal distance ");
+        if(seed.size() > max_order)seed = new ArrayList<String>(seed.subList(seed.size()-max_order,seed.size()));
+
+        Pandas df = this.prob_mats.get(seed.size());
+        ArrayList<Integer> idx;
+        ArrayList<ArrayList<String>> contexts = new ArrayList<ArrayList<String>>(this.prob_mats.get(seed.size()).inverse_index_0.values());
+
+        //If context not appeared escape to order -1
+        if(!contexts.contains(seed)){return sample(new ArrayList<String>(seed.subList(1,seed.size())),typicality, max_order);}
+
+        //Get Contexts similar to input context by filtering with masks (ln.170) and get mean-probability
+        idx = get_similar(seed,contexts,distance );
+        ArrayList<Double> sum = new ArrayList<Double>(Collections.nCopies(df.alphabet.size(), 0.0));
+        for(int id: idx){
+            ArrayList<Double> probabilities = df.getValue(df.inverse_index_0.get(id));
+            probabilities = Helper.modulate(probabilities, typicality);
+            for(int i = 0; i < probabilities.size(); i++){
+                Double value = sum.get(i);
+                sum.set(i, value + probabilities.get(i));
+            }
+        }
+        //getting mean probability
+        ArrayList<Double> mean = Helper.divide_array(sum, idx.size());
+
+        //escape if probability does not sum up to 1
+        if (Helper.sumList(mean) != 1){return this.sample(new ArrayList<String>(seed.subList(1, seed.size())),typicality, max_order);}
+
+        //sampling from distribution
+        Double[] Double_array = new Double[mean.size()];
+        Double_array = mean.toArray(Double_array);
+        int i = 0;
+        double[] array_probs = new double[Double_array.length];
+        for(Double d : Double_array) {
+            array_probs[i] = (double)d;
+            i++;
+        }
+        EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(this.prob_mats.get(0).alpha_pos, array_probs);
+        int id = dist.sample();
+        String sample = this.alphabet.get(id);
+        update_generated_history(sample);
+        Atom[] dumpAtom;
+        dumpAtom = new Atom[]{Atom.newAtom(sample),Atom.newAtom(array_probs[id])};
+        return dumpAtom;
+    }
 
     /**
      * Updates DataFrame representing VOMM at order depth

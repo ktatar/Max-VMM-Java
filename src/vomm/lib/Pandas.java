@@ -16,7 +16,8 @@ public class Pandas implements java.io.Serializable {
     int depth;
     //List of String corresponding to the alphabet used in this order of the VOMM
     public ArrayList<String> alphabet;
-
+    //Converting alphabet to their  (needed for Sample method only takes array not collection)
+    public int[] alpha_pos;
     //Row Index (Context -> Index)
     HashMap<ArrayList<String>, Integer> index_0;
     //Row Name (Index -> Context)
@@ -45,6 +46,8 @@ public class Pandas implements java.io.Serializable {
         for (int i = 0; i < alphabet.size(); i++) {
             this.index_1.put(alphabet.get(i), i);
         }
+        this.alpha_pos = this.make_alphapos(new ArrayList<Integer>(this.index_1.values()));
+
     }
 
 
@@ -130,6 +133,7 @@ public class Pandas implements java.io.Serializable {
                 this.index_1.put(symbol, this.index_1.size());
                 this.alphabet = new ArrayList<String>(this.index_1.keySet());
                 df.get(this.index_0.get(context)).add(0.0);
+                this.alpha_pos = this.make_alphapos(new ArrayList<Integer>(this.index_1.values()));
             }
 
             //Setting Value
@@ -154,6 +158,7 @@ public class Pandas implements java.io.Serializable {
                 this.index_1.put(symbol, this.index_1.size());
                 this.alphabet = new ArrayList<String>(this.index_1.keySet());
                 df.get(this.index_0.get(context)).add(0.0);
+                this.alpha_pos = this.make_alphapos(new ArrayList<Integer>(this.index_1.values()));
 
             }
 
@@ -223,4 +228,17 @@ public class Pandas implements java.io.Serializable {
     public int getDepth() {
         return this.depth;
     }
+
+    private int[] make_alphapos(ArrayList<Integer> Inte) {
+        Integer[] Integer_array = new Integer[Inte.size()];
+        Integer_array = Inte.toArray(Integer_array);
+        int i = 0;
+        int[] pos = new int[Integer_array.length];
+        for (Integer d : Integer_array) {
+            pos[i] = (int) d;
+            i++;
+        }
+        return pos;
+    }
+
 }

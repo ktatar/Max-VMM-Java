@@ -1,7 +1,7 @@
 package vomm;
 
-import com.cycling74.max.Atom;
-import lib.*;
+//import com.cycling74.max.Atom;
+import vomm.lib.*;
 import org.apache.commons.math3.distribution.*;
 import java.io.*;
 import java.util.*;
@@ -15,7 +15,7 @@ public class VMM implements java.io.Serializable{
     /**
      * The {@link ArrayList} of {@link Pandas} that contain the probabilities of the symbols in the alphabet appearing after all contexts, each index represents the order
      */
-    private ArrayList<Pandas> prob_mats;
+    public ArrayList<Pandas> prob_mats;
     /**
      * The {@link ArrayList} of {@link Pandas} that contain the times of the symbols in the alphabet appearing after all contexts, each index represents the order
      */
@@ -24,10 +24,7 @@ public class VMM implements java.io.Serializable{
      * The {@link ArrayList} of {@link String} is the alphabet that is used in the VMM
      */
     public ArrayList<String> alphabet;
-    /**
-     * The int[] contains the int used in the Pandas for a String in the alphabet
-     */
-    private int[] alpha_pos;
+
     /**
      *The int is the maximal order that is represented by the VMM
      */
@@ -54,11 +51,8 @@ public class VMM implements java.io.Serializable{
         alphabet = new ArrayList<String>();
         //this.vmm = new ArrayList<Pandas>();
         this.counts = new ArrayList<Pandas>();
-        this.alpha_pos = new int[alphabet.size()];
         this.max_depth = max_depth;
-        for (int i = 0; i < alphabet.size(); i++){
-            this.alpha_pos[i] = i;
-        }
+
     }
 
     /**
@@ -70,11 +64,8 @@ public class VMM implements java.io.Serializable{
     public VMM(ArrayList<String> alphabet, int max_depth){
         this.alphabet = alphabet;
         this.counts = new ArrayList<Pandas>();
-        this.alpha_pos = new int[alphabet.size()];
         this.max_depth = max_depth;
-        for (int i = 0; i < alphabet.size(); i++){
-            this.alpha_pos[i] = i;
-        }
+
     }
 
     /**
@@ -185,7 +176,7 @@ public class VMM implements java.io.Serializable{
             return this.sample(new ArrayList<String>(seed.subList(1,seed.size())),typicality, max_order);}
         ArrayList<Double> probabilities = this.prob_mats.get(seed.size()).getValue(seed);
         probabilities = Helper.modulate(probabilities, typicality);
-        
+
         double sum = Helper.sum_array(probabilities);
 
         //If the context did not appear reduce order by 1
@@ -245,21 +236,21 @@ public class VMM implements java.io.Serializable{
                 sum.set(i, value + probabilities.get(i));
             }
         }
-        
+
         //getting mean probability
         ArrayList<Double> mean = Helper.divide_array(sum, idx.size());
 
         //escape if probability does not sum up to 1
-        
+
         double sum_single = Helper.sum_array(mean);
-        
+
         if (sum_single != 1){
             if (sum_single <= 0.99) {
-                 return this.sample(new ArrayList<String>(seed.subList(1, seed.size())),typicality, max_order);
+                return this.sample(new ArrayList<String>(seed.subList(1, seed.size())),typicality, max_order);
             }
             mean = Helper.round(mean, sum_single);
-            }
-           
+        }
+
         //sampling from distribution
         Double[] Double_array = new Double[mean.size()];
         Double_array = mean.toArray(Double_array);
@@ -279,7 +270,6 @@ public class VMM implements java.io.Serializable{
     }
 
 
-
     /**
      * Updates DataFrame representing VOMM at order depth
      * @param seq Data to learn from
@@ -292,7 +282,9 @@ public class VMM implements java.io.Serializable{
             String symbol = seq.get(i + depth);
             this.counts.get(depth).incrementValue(context, symbol);
         }
+        System.out.println("filling" + this.alphabet);
         this.alphabet = this.counts.get(depth).alphabet;
+        System.out.println("set" + this.alphabet);
     }
 
     /**

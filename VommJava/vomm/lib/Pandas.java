@@ -1,4 +1,4 @@
-package lib;
+package vomm.lib;
 
 /**
  * The Pandas program implements the functions I need from the python pandas library
@@ -7,11 +7,7 @@ package lib;
  */
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-
+import java.util.*;
 
 
 public class Pandas implements java.io.Serializable {
@@ -20,14 +16,13 @@ public class Pandas implements java.io.Serializable {
     int depth;
     //List of String corresponding to the alphabet used in this order of the VOMM
     public ArrayList<String> alphabet;
-    //Converting alphabet to their  (needed for Sample method only takes array not collection)
-    public int[] alpha_pos;
+
     //Row Index (Context -> Index)
     HashMap<ArrayList<String>, Integer> index_0;
     //Row Name (Index -> Context)
     public HashMap<Integer, ArrayList<String>> inverse_index_0;
     //Column Index (Alphabet -> Index)
-    public HashMap<String, Integer> index_1;
+    public LinkedHashMap<String, Integer> index_1;
 
 
     //DataFrame
@@ -41,27 +36,24 @@ public class Pandas implements java.io.Serializable {
     public Pandas(ArrayList<String> alphabet, int depth) {
 
         index_0 = new HashMap();
-        index_1 = new HashMap();
+        index_1 = new LinkedHashMap<String, Integer>();
         inverse_index_0 = new HashMap();
         this.depth = depth;
         this.alphabet = alphabet;
-        this.alpha_pos = new int[alphabet.size()];
         for (int i = 0; i < alphabet.size(); i++) {
             this.index_1.put(alphabet.get(i), i);
-            this.alpha_pos[i] = i;
         }
     }
 
     public Pandas(Pandas src) {
         index_0 = (HashMap<ArrayList<String>, Integer>) src.index_0.clone();
-        index_1 = (HashMap<String, Integer>) src.index_1.clone();
+        index_1 = (LinkedHashMap<String, Integer>) src.index_1.clone();
         inverse_index_0 = (HashMap<Integer, ArrayList<String>>) src.inverse_index_0.clone();
         for(ArrayList<Double>old_df: src.df){
             this.df.add((ArrayList<Double>) old_df.clone());
         }
         this.depth = src.depth;
         this.alphabet = (ArrayList<String>) src.alphabet.clone();
-        this.alpha_pos = src.alpha_pos.clone();
 
     }
 
@@ -125,12 +117,7 @@ public class Pandas implements java.io.Serializable {
             df.get(this.index_0.get(context)).set(this.index_1.get(symbol), value);
             if (!this.index_1.containsKey(symbol)) {
                 this.index_1.put(symbol, this.index_1.size());
-                int[] new_alpha_pos = new int[this.alpha_pos.length+1];
-                for(int i = 0; i < new_alpha_pos.length; i++){
-                    new_alpha_pos[i] = i;
-                }
-                this.alpha_pos = new_alpha_pos;
-                this.alphabet.add(symbol);
+                this.alphabet = new ArrayList<String>(this.index_1.keySet());
                 df.get(this.index_0.get(context)).add(0.0);
             }
         } else {
@@ -151,12 +138,7 @@ public class Pandas implements java.io.Serializable {
             if (!this.index_1.containsKey(symbol)) {
                 //System.out.println("Symbol not in alphabet");
                 this.index_1.put(symbol, this.index_1.size());
-                int[] new_alpha_pos = new int[this.alpha_pos.length+1];
-                for(int i = 0; i < new_alpha_pos.length; i++){
-                    new_alpha_pos[i] = i;
-                }
-                this.alpha_pos = new_alpha_pos;
-                this.alphabet.add(symbol);
+                this.alphabet = new ArrayList<String>(this.index_1.keySet());
                 df.get(this.index_0.get(context)).add(0.0);
 
             }

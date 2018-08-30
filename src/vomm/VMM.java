@@ -1,5 +1,3 @@
-package vomm;
-
 import com.cycling74.max.Atom;
 import lib.*;
 import org.apache.commons.math3.distribution.*;
@@ -154,6 +152,7 @@ public class VMM implements java.io.Serializable{
             array_probs[i] = d;
             i++;
         }
+
         EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(this.prob_mats.get(0).alpha_pos, array_probs);
         int idx = dist.sample();
         String sample = this.alphabet.get(idx);
@@ -209,7 +208,7 @@ public class VMM implements java.io.Serializable{
 
     /**
      * Sampling Symbol from the mean probability distribution described by similar contexts to input(Similarity-Measure = Hamming-Distance)
-     * @param seed String context to get the similar contexts of     *
+     * @param seed String context to get the similar contexts of seed
      * @param distance Sets the amount of Hamming-distance
      * @param typicality value between 1-0 to decide the typicality of the probabilities
      * @return Sampled symbol

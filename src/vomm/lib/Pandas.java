@@ -41,13 +41,13 @@ public class Pandas implements java.io.Serializable {
         inverse_index_0 = new HashMap();
         this.depth = depth;
         this.alphabet = alphabet;
-
         //Filling the Hashmap with the Column index for th Strings in the alphabet
         for (int i = 0; i < alphabet.size(); i++) {
             this.index_1.put(alphabet.get(i), i);
         }
         this.alpha_pos = this.make_alphapos(new ArrayList<Integer>(this.index_1.values()));
-
+        System.out.println("ajfhsjdfl");
+        System.out.println(Arrays.toString(this.make_alphapos(new ArrayList<Integer>(this.index_1.values()))));
     }
 
 
@@ -64,7 +64,7 @@ public class Pandas implements java.io.Serializable {
         }
         this.depth = src.depth;
         this.alphabet = (ArrayList<String>) src.alphabet.clone();
-
+        this.alpha_pos = src.alpha_pos.clone();
     }
 
     /**

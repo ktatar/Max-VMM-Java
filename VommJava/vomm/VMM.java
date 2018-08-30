@@ -23,7 +23,7 @@ public class VMM implements java.io.Serializable{
     /**
      * The {@link ArrayList} of {@link String} is the alphabet that is used in the VMM
      */
-    private ArrayList<String> alphabet;
+    public ArrayList<String> alphabet;
     /**
      * The int[] contains the int used in the Pandas for a String in the alphabet
      */
@@ -180,7 +180,7 @@ public class VMM implements java.io.Serializable{
         if (max_order > this.prob_mats.size()){throw new RuntimeException("Order too big");}
         if(max_order < 0){throw new RuntimeException("Negative order impossible");}
         if(seed.size() > max_order){seed = new ArrayList<String>(seed.subList(seed.size()-max_order,seed.size()));}
-        
+
         if (!(this.prob_mats.get(seed.size()).inverse_index_0.values().contains(seed))){
             return this.sample(new ArrayList<String>(seed.subList(1,seed.size())),typicality, max_order);}
         ArrayList<Double> probabilities = this.prob_mats.get(seed.size()).getValue(seed);
@@ -204,6 +204,8 @@ public class VMM implements java.io.Serializable{
             array_probs[i] = (double)d;
             i++;
         }
+        System.out.println(String.valueOf(this.prob_mats.get(0).alpha_pos.length));
+        System.out.println(String.valueOf(array_probs.length));
         EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(this.prob_mats.get(0).alpha_pos, array_probs);
         int idx = dist.sample();
         String sample = this.alphabet.get(idx);
@@ -249,13 +251,13 @@ public class VMM implements java.io.Serializable{
 
         //escape if probability does not sum up to 1
         
-        double sum= Helper.sum_array(mean)
+        double sum_single = Helper.sum_array(mean);
         
-        if (sum != 1){
-            if (sum <= 0.99) {
+        if (sum_single != 1){
+            if (sum_single <= 0.99) {
                  return this.sample(new ArrayList<String>(seed.subList(1, seed.size())),typicality, max_order);
             }
-            mean = Helper.round(mean, sum);
+            mean = Helper.round(mean, sum_single);
             }
            
         //sampling from distribution

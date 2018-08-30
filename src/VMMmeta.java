@@ -67,6 +67,11 @@ public class VMMmeta extends MaxObject {
         ArrayList<String> learnSequence = new ArrayList<String>(Arrays.asList(Atom.toString(sequenceIn)));
         VMMinst.learn(learnSequence);
         post("learning the sequence " + learnSequence);
+        post(String.valueOf(VMMinst.alphabet.size()));
+        for(int i=0; i<VMMinst.alphabet.size(); i++){
+            post(VMMinst.alphabet.get(i));
+        }
+
         anything_learned = true;
     }
 
@@ -114,6 +119,7 @@ public class VMMmeta extends MaxObject {
             ArrayList<String> prevGenHistory = VMMinst.getGenerated_history();
             //post(String.valueOf(prevGenHistory.toArray()));
             post(VMMinst.getGenerated_history().toString());
+            post("dangang");
             Atom[] sampleTuple = VMMinst.sample(VMMinst.getGenerated_history(), VMMinst.typicality, this.gen_max_order);
             String generated = sampleTuple[0].getString();
             ArrayList<String> generatedHistory = new ArrayList<String>(Arrays.asList(generated));

@@ -3,7 +3,6 @@ package lib;
 /**
  * The Pandas program implements the functions I need from the python pandas library
  *
- * @author Jonas Kraasch
  * @since 2018-07-17
  */
 

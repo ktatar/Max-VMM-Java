@@ -1,8 +1,5 @@
-import vomm.VMM;
-
 import com.cycling74.max.*;
 import java.util.Arrays;
-import java.util.List;
 import java.util.ArrayList;
 
 public class VMMmeta extends MaxObject {

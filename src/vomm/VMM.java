@@ -1,5 +1,7 @@
-import com.cycling74.max.Atom;
-import lib.*;
+package vomm;
+
+//import com.cycling74.max.Atom;
+import vomm.lib.*;
 import org.apache.commons.math3.distribution.*;
 import java.io.*;
 import java.util.*;
@@ -81,6 +83,8 @@ public class VMM implements java.io.Serializable{
             this.counts.add(df);
             if (sequence.size()-level >= 0 ){
                 this.fillPandas(sequence, level);
+                //update alphabet, since new Strings could have appeared
+                this.alphabet = this.counts.get(0).alphabet;
             }
             level++;
         }
@@ -138,181 +142,6 @@ public class VMM implements java.io.Serializable{
         return this.prob_mats.get(context.size()).getValue(context, symbol);
     }
 
-    /**
-     * Samples Symbol from probabilities of Symbols appearing after empty sequence
-     * @param typicality value between 1-0 to decide the typicality of the probabilities
-     * @return Symbol sampled from the probability distribution following an empty seed
-     */
-    public Atom[] sampleStart(double typicality){
-        ArrayList<Double> probabilities = this.prob_mats.get(0).getValue(new ArrayList<String>());
-        //Shifting the distribution according to the wanted typicality
-        probabilities = Helper.modulate(probabilities, typicality);
-
-        //Converting Double --> double for EnumeratedIntegerDistribution
-        Double[] Double_array = new Double[probabilities.size()];
-        Double_array = probabilities.toArray(Double_array);
-        int i = 0;
-        double[] array_probs = new double[Double_array.length];
-        for(Double d : Double_array) {
-            array_probs[i] = d;
-            i++;
-        }
-
-        //Sampling
-
-        //Getting the positions of the Strings in the alphabet
-        ArrayList<Integer> POS= new ArrayList<Integer>(this.prob_mats.get(0).index_1.values());
-        Integer[] POS_array = new Integer[POS.size()];
-        POS_array = POS.toArray(POS_array);
-        int j = 0;
-        int[] pos = new int[POS_array.length];
-        for(Integer d : POS_array) {
-            pos[j] = d;
-            j++;
-        }
-        EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(pos, array_probs);
-        int idx = dist.sample();
-        String sample = this.alphabet.get(idx);
-        Atom[] dumpAtom = new Atom[]{Atom.newAtom(sample),Atom.newAtom(array_probs[idx])};
-        return dumpAtom;
-    }
-
-    /**
-     * Returns one character sampling from probabilities of Symbols appearing after context
-     *
-     * @param seed Seed used to sample next symbol
-     * @param typicality value between 1-0 to decide the typicality of the probabilities
-     * @param max_order int Maximal order of VOMM that should be used
-     * @return Sampled Symbol
-     */
-
-    public Atom[] sample(ArrayList<String> seed, double typicality, int max_order){
-        if (max_order > this.prob_mats.size()){throw new RuntimeException("Order too big");}
-        if(max_order < 0){throw new RuntimeException("Negative order impossible");}
-        if(seed.size() > max_order){seed = new ArrayList<String>(seed.subList(seed.size()-max_order,seed.size()));}
-
-        if (!(this.prob_mats.get(seed.size()).inverse_index_0.values().contains(seed))){
-            return this.sample(new ArrayList<String>(seed.subList(1,seed.size())),typicality, max_order);}
-        ArrayList<Double> probabilities = this.prob_mats.get(seed.size()).getValue(seed);
-
-        //Shifting the distribution according to the wanted typicality
-        probabilities = Helper.modulate(probabilities, typicality);
-
-        double sum = Helper.sumList(probabilities);
-
-        //If the context did not appear reduce order by 1
-        if (sum != 1) {
-            if (sum <= 0.99) {
-                return this.sample(new ArrayList<String>(seed.subList(1, seed.size())), typicality, max_order);
-            }
-            probabilities = Helper.round(probabilities, sum);
-        }
-
-        //Converting Double --> double for EnumeratedIntegerDistribution
-        Double[] Double_array = new Double[probabilities.size()];
-        Double_array = probabilities.toArray(Double_array);
-        int i = 0;
-        double[] array_probs = new double[Double_array.length];
-        for(Double d : Double_array) {
-            array_probs[i] = (double)d;
-            i++;
-        }
-
-        //Sample-method from apache commons
-        //Sampling
-
-        //Getting the positions of the Strings in the alphabet
-        ArrayList<Integer> POS= new ArrayList<Integer>(this.prob_mats.get(0).index_1.values());
-        Integer[] POS_array = new Integer[POS.size()];
-        POS_array = POS.toArray(POS_array);
-        int j = 0;
-        int[] pos = new int[POS_array.length];
-        for(Integer d : POS_array) {
-            pos[j] = d;
-            j++;
-        }
-        EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(pos, array_probs);
-        int idx = dist.sample();
-        String sample = this.alphabet.get(idx);
-        Atom[] dumpAtom = new Atom[]{Atom.newAtom(sample),Atom.newAtom(array_probs[idx])};
-        return dumpAtom;
-    }
-
-    /**
-     * Sampling Symbol from the mean probability distribution described by similar contexts to input(Similarity-Measure = Hamming-Distance)
-     * @param seed String context to get the similar contexts of     *
-     * @param distance Sets the amount of Hamming-distance
-     * @param typicality value between 1-0 to decide the typicality of the probabilities
-     * @return Sampled symbol
-     */
-    public Atom[] sample_fuzzy(ArrayList<String> seed, int distance, double typicality, int max_order){
-        // Getting rid of unwanted cases
-        if (max_order > this.prob_mats.size())throw new RuntimeException("Context too long");
-        if(max_order < 0)throw new RuntimeException("Negative order impossible");
-        if(distance > seed.size() || distance < 0)throw new RuntimeException("Illegal distance ");
-        if(seed.size() > max_order)seed = new ArrayList<String>(seed.subList(seed.size()-max_order,seed.size()));
-
-        Pandas df = this.prob_mats.get(seed.size());
-        ArrayList<Integer> idx;
-        ArrayList<ArrayList<String>> contexts = new ArrayList<ArrayList<String>>(this.prob_mats.get(seed.size()).inverse_index_0.values());
-
-        //If context not appeared escape to order -1
-        if(!contexts.contains(seed)){return sample(new ArrayList<String>(seed.subList(1,seed.size())),typicality, max_order);}
-
-        //Get Contexts similar to input context by finding which contexts only differ by a set amount of elements
-        // shift the distribution and get mean-probability
-        idx = get_similar(seed,contexts,distance );
-        ArrayList<Double> sum = new ArrayList<Double>(Collections.nCopies(df.alphabet.size(), 0.0));
-        for(int id: idx){
-            ArrayList<Double> probabilities = df.getValue(df.inverse_index_0.get(id));
-            probabilities = Helper.modulate(probabilities, typicality);
-            for(int i = 0; i < probabilities.size(); i++){
-                Double value = sum.get(i);
-                sum.set(i, value + probabilities.get(i));
-            }
-        }
-
-        //getting mean probability
-        ArrayList<Double> mean = Helper.divide_array(sum, idx.size());
-
-        //escape if probability does not sum up to 1
-        double sum_single = Helper.sumList(mean);
-        if (sum_single != 1){
-            if (sum_single <= 0.99) {
-                return this.sample(new ArrayList<String>(seed.subList(1, seed.size())),typicality, max_order);
-            }
-            mean = Helper.round(mean, sum_single);
-        }
-
-        //Converting Double --> double for EnumeratedIntegerDistribution
-        Double[] Double_array = new Double[mean.size()];
-        Double_array = mean.toArray(Double_array);
-        int i = 0;
-        double[] array_probs = new double[Double_array.length];
-        for(Double d : Double_array) {
-            array_probs[i] = (double)d;
-            i++;
-        }
-
-        //Sample-method from apache commons
-        //Getting the positions of the Strings in the alphabet
-        ArrayList<Integer> POS= new ArrayList<Integer>(this.prob_mats.get(0).index_1.values());
-        Integer[] POS_array = new Integer[POS.size()];
-        POS_array = POS.toArray(POS_array);
-        int j = 0;
-        int[] pos = new int[POS_array.length];
-        for(Integer d : POS_array) {
-            pos[j] = d;
-            j++;
-        }
-        EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(pos, array_probs);
-        int id = dist.sample();
-        String sample = this.alphabet.get(id);
-        //DO NOT update history here! update_generated_history(sample);
-        Atom[] dumpAtom;
-        dumpAtom = new Atom[]{Atom.newAtom(sample),Atom.newAtom(array_probs[id])};
-        return dumpAtom;
-    }
 
 
     /**
@@ -329,8 +158,7 @@ public class VMM implements java.io.Serializable{
             String symbol = seq.get(i + depth);
             this.counts.get(depth).incrementValue(context, symbol);
         }
-        //update alphabet, since new Strings could have appeared
-        this.alphabet = this.counts.get(depth).alphabet;
+
     }
 
     /**

@@ -86,7 +86,6 @@ public class VMM implements java.io.Serializable{
             if (sequence.size() - level >= 0) {
                 this.fillPandas(sequence, level);
                 //update alphabet, since new Strings could have appeared
-                
             }
         }
         this.alphabet = this.counts.get(0).alphabet;

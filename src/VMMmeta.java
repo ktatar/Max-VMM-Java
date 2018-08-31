@@ -14,6 +14,7 @@ public class VMMmeta extends MaxObject {
     int info_idx;
     boolean fuzzy_sampling;
     boolean anything_learned;
+    boolean verbose = false;
 
 
     public VMMmeta()
@@ -28,7 +29,7 @@ public class VMMmeta extends MaxObject {
 
         //create the alphabet
         VMMinst = new VMM(max_order);
-        post("Created a VMMmeta with max. order "+max_order);
+        if (verbose) post("Created a VMMmeta with max. order "+max_order);
         anything_learned = false;
 
         //Declare outlets
@@ -64,11 +65,12 @@ public class VMMmeta extends MaxObject {
 
         ArrayList<String> learnSequence = new ArrayList<String>(Arrays.asList(Atom.toString(sequenceIn)));
         VMMinst.learn(learnSequence);
-        post("learning the sequence " + learnSequence);
-        post(String.valueOf(VMMinst.alphabet.size()));
+        if (verbose) post("learning the sequence " + learnSequence);
+
+        /*post(String.valueOf(VMMinst.alphabet.size()));
         for(int i=0; i<VMMinst.alphabet.size(); i++){
             post(VMMinst.alphabet.get(i));
-        }
+        }*/
 
         anything_learned = true;
     }
@@ -116,8 +118,9 @@ public class VMMmeta extends MaxObject {
         else {
             ArrayList<String> prevGenHistory = VMMinst.getGenerated_history();
             //post(String.valueOf(prevGenHistory.toArray()));
-            post(VMMinst.getGenerated_history().toString());
-            post("dangang");
+
+            if (verbose) post(VMMinst.getGenerated_history().toString());
+            //post("dangddang");
             Atom[] sampleTuple = VMMinst.sample(VMMinst.getGenerated_history(), VMMinst.typicality, this.gen_max_order);
             String generated = sampleTuple[0].getString();
             ArrayList<String> generatedHistory = new ArrayList<String>(Arrays.asList(generated));
@@ -143,22 +146,22 @@ public class VMMmeta extends MaxObject {
     //Save and Load the VMM
     public void load(){
 
-        VMMinst.loadVMM();
+        this.VMMinst = VMMinst.loadVMM();
     }
 
     public void load(String filePath){
 
-        VMMinst.loadVMM(filePath);
+        this.VMMinst = VMMinst.loadVMM(filePath);
     }
 
     public void write(){
 
-        VMMinst.writeVMM();
+        this.VMMinst.writeVMM();
     }
 
     public void write(String filePath){
 
-        VMMinst.writeVMM(filePath);
+        this.VMMinst.writeVMM(filePath);
     }
     public void update_generated_history(Atom[] generated_history_update) {
             if (generated_history_update.length>max_order) {
@@ -176,6 +179,10 @@ public class VMMmeta extends MaxObject {
         else bail("Max. order of generation cannot be greater than the maximum VMM order.");
     }
     //Clear state
+
+    public void setVerbose(boolean verboseIn){
+        this.verbose = verboseIn;
+    }
 
     public void clearInputHistory(){
         VMMinst.clearInputHistory();

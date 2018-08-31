@@ -1,5 +1,5 @@
 import com.cycling74.max.Atom;
-import lib.Pandas;
+import lib.*;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -15,12 +15,12 @@ public class test {
 
         String[] new_alphab = {"7","8","9","10"};
         ArrayList<String> new_seq = new ArrayList<String>(Arrays.asList(new_alphab));
-        vmm.learn(new_seq);
-        ArrayList<String> values = new ArrayList<String>(vmm.prob_mats.get(1).index_1.keySet() );
+        //vmm.learn(new_seq);
+        //ArrayList<String> values = new ArrayList<String>(vmm.prob_mats.get(1).index_1.keySet() );
 
         String[] et = {"1", "2", "3", "4"};
         ArrayList<String> seed = new ArrayList<String>(Arrays.asList(et));
-        System.out.println(Atom.toString(vmm.sampleStart(1)));
+        //System.out.println(Atom.toString(vmm.sampleStart(1)));
 
 
 

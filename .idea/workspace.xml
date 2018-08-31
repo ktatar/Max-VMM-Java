@@ -2,9 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e78ab636-47cc-4007-b098-02e325fb9010" name="Default" comment="Working towards wrapping the code for Max.">
-      <change beforePath="$PROJECT_DIR$/out/production/Max-VMM-Java/VMMmeta.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Max-VMM-Java/VMM.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Max-VMM-Java/VMMmeta.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Max-VMM-Java/VMMmeta.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Max-VMM-Java/test.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Max-VMM-Java/test.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Max-VMM-Java/vomm/VMM.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Max-VMM-Java/vomm/VMM.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/VMMmeta.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/VMMmeta.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/vomm/VMM.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/vomm/VMM.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/vomm/test.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/vomm/test.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/VommJava/.idea/" />
@@ -26,33 +31,33 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="java" value="54" />
+          <entry key="java" value="91" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="JAVA" value="54" />
+          <entry key="JAVA" value="91" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="java" value="1" />
+          <entry key="java" value="2" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="JAVA" value="1" />
+          <entry key="JAVA" value="2" />
         </counts>
       </usages-collector>
     </session>
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/VMMmeta.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="360">
-              <caret line="27" lean-forward="true" selection-start-line="27" selection-end-line="27" />
+            <state relative-caret-position="585">
+              <caret line="142" column="27" lean-forward="true" selection-start-line="142" selection-start-column="27" selection-end-line="142" selection-end-column="27" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -61,12 +66,27 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/vomm/test.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="45">
+              <caret line="3" column="13" selection-start-line="3" selection-end-line="4" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/vomm/VMM.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-2282">
-              <caret line="247" column="42" selection-start-line="247" selection-start-column="42" selection-end-line="247" selection-end-column="42" />
+            <state relative-caret-position="404">
+              <caret line="224" column="52" lean-forward="true" selection-start-line="224" selection-start-column="52" selection-end-line="224" selection-end-column="52" />
               <folding>
                 <element signature="imports" expanded="true" />
+                <element signature="e#1106#1114#0" expanded="true" />
+                <element signature="e#1284#1292#0" expanded="true" />
+                <element signature="e#3897#3898#0" expanded="true" />
+                <element signature="e#3961#3962#0" expanded="true" />
+                <element signature="e#3998#3999#0" expanded="true" />
+                <element signature="e#4037#4038#0" expanded="true" />
                 <element signature="e#9127#9146#0" expanded="true" />
                 <element signature="e#9591#9599#0" expanded="true" />
                 <element signature="e#13038#13046#0" expanded="true" />
@@ -78,8 +98,11 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/vomm/lib/Pandas.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="120">
-              <caret line="8" column="31" lean-forward="true" selection-start-line="8" selection-start-column="31" selection-end-line="8" selection-end-column="31" />
+            <state relative-caret-position="855">
+              <caret line="57" column="4" lean-forward="true" selection-start-line="66" selection-start-column="47" selection-end-line="67" selection-end-column="5" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -87,7 +110,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/vomm/lib/Helper.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="87">
+            <state relative-caret-position="255">
               <caret line="17" column="46" selection-start-line="17" selection-start-column="46" selection-end-line="17" selection-end-column="46" />
               <folding>
                 <element signature="imports" expanded="true" />
@@ -132,16 +155,17 @@
         <option value="$PROJECT_DIR$/VommJava/vomm/lib/Pandas.java" />
         <option value="$PROJECT_DIR$/src/vomm/lib/Pandas.java" />
         <option value="$PROJECT_DIR$/src/vomm/lib/Helper.java" />
-        <option value="$PROJECT_DIR$/src/VMMmeta.java" />
         <option value="$PROJECT_DIR$/src/vomm/VMM.java" />
+        <option value="$PROJECT_DIR$/src/vomm/test.java" />
+        <option value="$PROJECT_DIR$/src/VMMmeta.java" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="57" />
-    <option name="y" value="54" />
-    <option name="width" value="1323" />
-    <option name="height" value="653" />
+    <option name="x" value="-1891" />
+    <option name="y" value="158" />
+    <option name="width" value="1626" />
+    <option name="height" value="772" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -175,7 +199,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1535666259057" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1535674318086" />
     <property name="project.structure.last.edited" value="Modules" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
@@ -246,10 +270,10 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-1795" y="-173" width="1517" height="942" extended-state="0" />
+    <frame x="-1891" y="158" width="1626" height="772" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2738983" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.27588382" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Designer" order="3" />
@@ -266,7 +290,7 @@
       <window_info anchor="bottom" id="Terminal" order="7" />
       <window_info anchor="bottom" id="Event Log" order="8" side_tool="true" />
       <window_info anchor="bottom" id="Version Control" order="9" />
-      <window_info anchor="bottom" id="Messages" order="10" weight="0.14873035" />
+      <window_info anchor="bottom" id="Messages" order="10" weight="0.3242009" />
       <window_info anchor="bottom" id="Dependency Viewer" order="11" weight="0.32954547" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -331,14 +355,17 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/vomm/lib/Pandas.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="8" column="31" lean-forward="true" selection-start-line="8" selection-start-column="31" selection-end-line="8" selection-end-column="31" />
+        <state relative-caret-position="855">
+          <caret line="57" column="4" lean-forward="true" selection-start-line="66" selection-start-column="47" selection-end-line="67" selection-end-column="5" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/vomm/lib/Helper.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="87">
+        <state relative-caret-position="255">
           <caret line="17" column="46" selection-start-line="17" selection-start-column="46" selection-end-line="17" selection-end-column="46" />
           <folding>
             <element signature="imports" expanded="true" />
@@ -346,25 +373,38 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/vomm/VMM.java">
+    <entry file="file://$PROJECT_DIR$/src/VMMmeta.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2282">
-          <caret line="247" column="42" selection-start-line="247" selection-start-column="42" selection-end-line="247" selection-end-column="42" />
+        <state relative-caret-position="585">
+          <caret line="142" column="27" lean-forward="true" selection-start-line="142" selection-start-column="27" selection-end-line="142" selection-end-column="27" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#9127#9146#0" expanded="true" />
-            <element signature="e#9591#9599#0" expanded="true" />
-            <element signature="e#13038#13046#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/VMMmeta.java">
+    <entry file="file://$PROJECT_DIR$/src/vomm/test.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="360">
-          <caret line="27" lean-forward="true" selection-start-line="27" selection-end-line="27" />
+        <state relative-caret-position="45">
+          <caret line="3" column="13" selection-start-line="3" selection-end-line="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/vomm/VMM.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="404">
+          <caret line="224" column="52" lean-forward="true" selection-start-line="224" selection-start-column="52" selection-end-line="224" selection-end-column="52" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#1106#1114#0" expanded="true" />
+            <element signature="e#1284#1292#0" expanded="true" />
+            <element signature="e#3897#3898#0" expanded="true" />
+            <element signature="e#3961#3962#0" expanded="true" />
+            <element signature="e#3998#3999#0" expanded="true" />
+            <element signature="e#4037#4038#0" expanded="true" />
+            <element signature="e#9127#9146#0" expanded="true" />
+            <element signature="e#9591#9599#0" expanded="true" />
+            <element signature="e#13038#13046#0" expanded="true" />
           </folding>
         </state>
       </provider>

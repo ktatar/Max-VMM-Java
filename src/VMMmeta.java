@@ -117,7 +117,7 @@ public class VMMmeta extends MaxObject {
             ArrayList<String> prevGenHistory = VMMinst.getGenerated_history();
             //post(String.valueOf(prevGenHistory.toArray()));
             post(VMMinst.getGenerated_history().toString());
-            post("dangang");
+            post("dangidang");
             Atom[] sampleTuple = VMMinst.sample(VMMinst.getGenerated_history(), VMMinst.typicality, this.gen_max_order);
             String generated = sampleTuple[0].getString();
             ArrayList<String> generatedHistory = new ArrayList<String>(Arrays.asList(generated));

@@ -46,8 +46,6 @@ public class Pandas implements java.io.Serializable {
             this.index_1.put(alphabet.get(i), i);
         }
         this.alpha_pos = this.make_alphapos(new ArrayList<Integer>(this.index_1.values()));
-        System.out.println("ajfhsjdfl");
-        System.out.println(Arrays.toString(this.make_alphapos(new ArrayList<Integer>(this.index_1.values()))));
     }
 
 
@@ -127,7 +125,7 @@ public class Pandas implements java.io.Serializable {
     public void setValue(ArrayList<String> context, String symbol, double value) {
 
         if (this.index_0.containsKey(context)) {
-
+            validatePandas(context);
             //If symbol isn't in our alphabet, we will add it to the alphabet and update the Panda with an extra column
             if (!this.index_1.containsKey(symbol)) {
                 this.index_1.put(symbol, this.index_1.size());
@@ -153,6 +151,7 @@ public class Pandas implements java.io.Serializable {
     public void incrementValue(ArrayList<String > context, String symbol) {
 
         if (this.index_0.containsKey(context)) {
+            validatePandas(context);
             //If symbol isn't in our alphabet, we will add it to the alphabet and update the Panda with an extra column
             if (!this.index_1.containsKey(symbol)) {
                 this.index_1.put(symbol, this.index_1.size());
@@ -240,5 +239,9 @@ public class Pandas implements java.io.Serializable {
         }
         return pos;
     }
-
+    private void validatePandas(ArrayList<String> context){
+        while(df.get(this.index_0.get(context)).size() < alpha_pos.length){
+            df.get(this.index_0.get(context)).add(0.0);
+        }
+    }
 }

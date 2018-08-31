@@ -1,5 +1,3 @@
-package vomm;
-
 import com.cycling74.max.Atom;
 import lib.*;
 import org.apache.commons.math3.distribution.*;

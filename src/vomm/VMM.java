@@ -86,9 +86,10 @@ public class VMM implements java.io.Serializable{
             if (sequence.size() - level >= 0) {
                 this.fillPandas(sequence, level);
                 //update alphabet, since new Strings could have appeared
-                this.alphabet = this.counts.get(level).alphabet;
+                
             }
         }
+        this.alphabet = this.counts.get(0).alphabet;
         //Creating Transition Matrix
         this.prob_mats = this.copy(this.counts);
         this.compute_prob_mat();

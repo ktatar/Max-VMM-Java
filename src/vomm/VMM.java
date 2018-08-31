@@ -73,19 +73,21 @@ public class VMM implements java.io.Serializable{
      * @param sequence {@link ArrayList<String>} sequence to learn the probabilities o
      */
     public void learn(ArrayList<String> sequence){
-        int level = 0;
+        int level = counts.size();
         //Cleaning Sequence
         sequence.removeAll(Arrays.asList("",null));
         //Adding and Filling Pandas to VMM (List) until we can describe the wanted orders
         while((level <= this.max_depth)) {
             Pandas df = new Pandas(this.alphabet, level);
             this.counts.add(df);
-            if (sequence.size()-level >= 0 ){
+            level++;
+        }
+        for(level = 0; level <= this.max_depth; level++){
+            if (sequence.size() - level >= 0) {
                 this.fillPandas(sequence, level);
                 //update alphabet, since new Strings could have appeared
-                this.alphabet = this.counts.get(0).alphabet;
+                this.alphabet = this.counts.get(level).alphabet;
             }
-            level++;
         }
         //Creating Transition Matrix
         this.prob_mats = this.copy(this.counts);
@@ -197,11 +199,16 @@ public class VMM implements java.io.Serializable{
             array_probs[i] = (double)d;
             i++;
         }
-        System.out.println(String.valueOf(this.prob_mats.get(0).alpha_pos.length));
-        System.out.println(String.valueOf(array_probs.length));
-        EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(this.prob_mats.get(0).alpha_pos, array_probs);
+        int[] positions = new int[array_probs.length];
+        if(this.prob_mats.get(seed.size()).alpha_pos.length > array_probs.length){
+            positions = shorten(this.prob_mats.get(seed.size()).alpha_pos, array_probs.length);
+        }else{
+            positions = this.prob_mats.get(seed.size()).alpha_pos;
+        }
+
+        EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(positions, array_probs);
         int idx = dist.sample();
-        String sample = this.alphabet.get(idx);
+        String sample = this.prob_mats.get(seed.size()).alphabet.get(idx);
         Atom[] dumpAtom = new Atom[]{Atom.newAtom(sample),Atom.newAtom(array_probs[idx])};
         return dumpAtom;
     }
@@ -262,9 +269,16 @@ public class VMM implements java.io.Serializable{
             array_probs[i] = (double)d;
             i++;
         }
-        EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(this.prob_mats.get(0).alpha_pos, array_probs);
+        int[] positions = new int[array_probs.length];
+        if(this.prob_mats.get(seed.size()).alpha_pos.length > array_probs.length){
+            positions = shorten(this.prob_mats.get(seed.size()).alpha_pos, array_probs.length);
+        }else{
+            positions = this.prob_mats.get(seed.size()).alpha_pos;
+        }
+
+        EnumeratedIntegerDistribution dist = new EnumeratedIntegerDistribution(positions, array_probs);
         int id = dist.sample();
-        String sample = this.alphabet.get(id);
+        String sample = this.prob_mats.get(seed.size()).alphabet.get(id);
         //DO NOT update history here! update_generated_history(sample);
         Atom[] dumpAtom;
         dumpAtom = new Atom[]{Atom.newAtom(sample),Atom.newAtom(array_probs[id])};
@@ -439,6 +453,14 @@ public class VMM implements java.io.Serializable{
         } catch (IOException i) {
             i.printStackTrace();
         }
+    }
+
+    private int[] shorten(int[] array, int size){
+        int[] shortend = new int[size];
+        for(int i = 0; i < size; i++) {
+            shortend[i] = array[i];
+        }
+        return shortend;
     }
 }
 

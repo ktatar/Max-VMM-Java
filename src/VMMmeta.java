@@ -1,4 +1,8 @@
 import com.cycling74.max.*;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.Arrays;
 import java.util.ArrayList;
 
@@ -36,6 +40,7 @@ public class VMMmeta extends MaxObject {
         this.declareOutlets(new int[]{DataTypes.ALL,DataTypes.FLOAT});
         info_idx = getInfoIdx();
         fuzzy_sampling = false;
+        post("dangs");
     }
 
 /*    public VMMmeta(int orderIn, int alphabetSizeIn)
@@ -143,25 +148,32 @@ public class VMMmeta extends MaxObject {
         outlet(1, sampleTuple[1]);
     }
 
-    //Save and Load the VMM
-    public void load(){
+    public void read(String filePath){
 
-        this.VMMinst = VMMinst.loadVMM();
-    }
+/*        try {
+            FileInputStream fileIn = new FileInputStream(filePath);
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+            VMMinst = (VMM) in.readObject();
+            System.out.println("MY VMM " + VMMinst.getGenerated_history().toString());
+            System.out.println("MY VMM " + this.anything_learned);
+            in.close();
+            fileIn.close();
+            System.out.println("Loaded Serialized VMM saved in " + filePath);
+        } catch (IOException i) {
+            i.printStackTrace();
+        } catch (ClassNotFoundException c) {
+            System.out.println("VMM class not found");
+            c.printStackTrace();
+        }*/
 
-    public void load(String filePath){
-
-        this.VMMinst = VMMinst.loadVMM(filePath);
-    }
-
-    public void write(){
-
-        this.VMMinst.writeVMM();
+        this.clearAll();
+        VMMinst = (VMM) VMMinst.loadVMM(filePath);
+        anything_learned = true;
     }
 
     public void write(String filePath){
 
-        this.VMMinst.writeVMM(filePath);
+        VMMinst.writeVMM(filePath);
     }
     public void update_generated_history(Atom[] generated_history_update) {
             if (generated_history_update.length>max_order) {
@@ -179,7 +191,6 @@ public class VMMmeta extends MaxObject {
         else bail("Max. order of generation cannot be greater than the maximum VMM order.");
     }
     //Clear state
-
     public void setVerbose(boolean verboseIn){
         this.verbose = verboseIn;
     }

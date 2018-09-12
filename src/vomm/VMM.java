@@ -383,6 +383,7 @@ public class VMM implements java.io.Serializable{
             FileInputStream fileIn = new FileInputStream(name);
             ObjectInputStream in = new ObjectInputStream(fileIn);
             VMM vomm = (VMM) in.readObject();
+            System.out.println("MY VMM " + vomm.getGenerated_history().toString());
             in.close();
             fileIn.close();
             System.out.println("Loaded Serialized VMM saved in " + name);

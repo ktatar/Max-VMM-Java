@@ -3,6 +3,8 @@ package lib;
 import java.util.ArrayList;
 import java.util.Random;
 
+import static java.lang.Math.abs;
+
 public class Helper {
 
     public static ArrayList<Double> divide_array(ArrayList<Double> input, double value) {
@@ -43,7 +45,7 @@ public class Helper {
         Random rand = new Random();
         int id = rand.nextInt(probabilities.size());
         double reduce_by = 1.0- sum;
-        probabilities.set(id, probabilities.get(id)+reduce_by);
+        probabilities.set(id, abs(probabilities.get(id)+reduce_by));
         return probabilities;
     }
 }

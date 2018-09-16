@@ -45,7 +45,7 @@ public class Helper {
         Random rand = new Random();
         int id = rand.nextInt(probabilities.size());
         double reduce_by = 1.0- sum;
-        probabilities.set(id, abs(probabilities.get(id)+reduce_by));
+        probabilities.set(id, abs(probabilities.get(id)+reduce_by)); //circumvent -0 error
         return probabilities;
     }
 }
